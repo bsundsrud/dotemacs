@@ -126,9 +126,7 @@
   (add-hook 'lsp-mode-hook 'lsp-ui-mode))
 
 (use-package spaceline
-  :ensure t
-  :init
-  (setq powerline-default-separator 'slant))
+  :ensure t)
 
 (use-package spaceline-all-the-icons
   :ensure t
