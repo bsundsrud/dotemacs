@@ -1,3 +1,10 @@
+;; Speed up startup
+(defvar init--file-name-handler-alist file-name-handler-alist)
+(setq gc-cons-threshold 402653184
+      gc-cons-percentage 0.6
+      file-name-handler-alist nil)
+
+
 ;; ================================================
 ;; Global prefs
 ;; ================================================
@@ -75,10 +82,12 @@
 
 (use-package which-key
   :ensure t
+  :diminish
   :config (which-key-mode 1))
 
 (use-package projectile
   :ensure t
+  :diminish
   :commands (projectile-mode)
   :config (setq projectile-completion-system 'ivy))
 
@@ -92,8 +101,13 @@
 
 (use-package evil
   :ensure t
+  :diminish 'undo-tree-mode
   :config
-  (evil-mode 1))
+  (evil-mode 1)
+  (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
+  (evil-define-key 'normal neotree-mode-map (kbd "z") 'neotree-quick-look)
+  (evil-define-key 'normal neotree-mode-map (kbd "q") 'neotree-hide)
+  (evil-define-key 'normal neotree-mode-map (kbd "RET") 'neotree-enter))
 
 (use-package flycheck
   :ensure t
@@ -209,6 +223,9 @@
 ;; setup normal mode evil shortcuts
 (general-define-key
  :states '(normal)
+ "gT"  '(switch-to-prev-buffer :which-key "previous buffer")
+ "gt"  '(switch-to-next-buffer :which-key "next buffer")
+ "gb"  '(counsel-ibuffer :which-key "buffers list")
  "`" '(neotree-toggle :which-key "toggle neotree"))
 
 ;; setup evil leader shortcuts
@@ -216,24 +233,29 @@
  :states '(normal visual insert emacs)
  :prefix "SPC"
  :non-normal-prefix "M-SPC"
- "/" '(counsel-rg :which-key "ripgrep")
+ "/"   '(counsel-rg :which-key "ripgrep")
  "TAB" '(switch-to-prev-buffer :which-key "previous buffer")
  "SPC" '(counsel-M-x :which-key "M-x")
- "w" '(:ignore t :which-key "window")
- "wl" '(windmove-right :which-key "move right")
- "wh" '(windmove-left :which-key "move left")
- "wk" '(windmove-up :which-key "move up")
- "wj" '(windmove-down :which-key "move down")
- "w/" '(split-window-right :which-key "split right")
- "w-" '(split-window-below :which-key "split below")
- "wx" '(delete-window :which-key "delete window")
- "q" '(:ignore t :which-key "quit")
- "qz" '(delete-frame :which-key "kill frame")
- "qQ" '(kill-emacs :which-key "kill emacs")
- "qq" '(save-buffers-kill-emacs :which-key "save and kill emacs")
- "e" '(:ignore t :which-key "elisp eval")
- "eb" '(eval-buffer :which-key "current buffer")
- "t" '(:ignore t :which-key "text properties")
+ "g"   '(:ignore t :which-key "buffers")
+ "gT"  '(switch-to-prev-buffer :which-key "previous buffer")
+ "gt"  '(switch-to-next-buffer :which-key "next buffer")
+ "gb"  '(counsel-ibuffer :which-key "buffers list")
+ "gq"  '(kill-current-buffer :which-key "kill this buffer")
+ "w"   '(:ignore t :which-key "window")
+ "wl"  '(windmove-right :which-key "move right")
+ "wh"  '(windmove-left :which-key "move left")
+ "wk"  '(windmove-up :which-key "move up")
+ "wj"  '(windmove-down :which-key "move down")
+ "w/"  '(split-window-right :which-key "split right")
+ "w-"  '(split-window-below :which-key "split below")
+ "wx"  '(delete-window :which-key "delete window")
+ "q"   '(:ignore t :which-key "quit")
+ "qz"  '(delete-frame :which-key "kill frame")
+ "qQ"  '(kill-emacs :which-key "kill emacs")
+ "qq"  '(save-buffers-kill-emacs :which-key "save and kill emacs")
+ "e"   '(:ignore t :which-key "elisp eval")
+ "eb"  '(eval-buffer :which-key "current buffer")
+ "t"   '(:ignore t :which-key "text properties")
  "ti"  '(text-scale-increase :which-key "text scale increase")
  "td"  '(text-scale-decrease :which-key "text scale decrease")
  )
@@ -269,3 +291,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+;; Restore settings
+(setq gc-cons-threshold 16777216
+      gc-cons-percentage 0.1
+      file-name-handler-alist init--file-name-handler-alist)
+(put 'erase-buffer 'disabled nil)
