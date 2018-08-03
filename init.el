@@ -199,6 +199,18 @@
   :mode "Dockerfile\\'"
   :ensure t)
 
+;; Web
+(use-package web-mode
+  :mode "\\.html\\'"
+  :ensure t)
+
+;; JavaScript
+(use-package js2-mode
+  :mode "\\.js\\'"
+  :ensure t
+  :init (add-hook 'js2-mode-hook (lambda () (setq indent-tabs-mode nil))))
+
+
 ;; ================================================
 ;; Theme
 ;; ================================================
@@ -281,7 +293,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
+    (web-mode dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
  '(spaceline-all-the-icons-flycheck-alternate t)
  '(spaceline-all-the-icons-hide-long-buffer-path t)
  '(spaceline-all-the-icons-slim-render t))
