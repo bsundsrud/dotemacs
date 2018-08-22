@@ -27,6 +27,7 @@
 (show-paren-mode 1)
 (global-display-line-numbers-mode 1)
 (setq display-line-numbers 'relative)
+(setq-default indent-tabs-mode nil)     ; use spaces instead of tabs
 ;; Minimal UI
 (scroll-bar-mode -1)
 (tool-bar-mode   -1)
