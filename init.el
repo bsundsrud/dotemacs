@@ -114,10 +114,9 @@
   :ensure t
   :init (global-flycheck-mode 1))
 
-(use-package lsp-mode
+(use-package eglot
   :ensure t
-  :init
-  (add-hook 'prog-major-mode #'lsp-prog-major-mode-enable))
+  :demand)
 
 (use-package company
   :ensure t
@@ -135,11 +134,6 @@
   :init
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
 
-(use-package lsp-ui
-  :ensure t
-  :init
-  (add-hook 'lsp-mode-hook 'lsp-ui-mode))
-
 (use-package spaceline
   :ensure t)
 
@@ -155,14 +149,21 @@
 ;; Rust
 (use-package rust-mode
   :ensure t
-  :mode ("\\.rs\\'" . rust-mode))
+  :mode "\\.rs\\'"
+  :init
+  (add-hook 'rust-mode-hook #'eglot-ensure)
+  :config (setq rust-format-on-save t))
 
-(use-package lsp-rust
+(use-package cargo
   :ensure t
   :init
-  (setq lsp-rust-rls-command '("rustup" "run" "stable" "rls"))
-  (add-hook 'rust-mode-hook #'lsp-rust-enable)
-  (add-hook 'rust-mode-hook #'flycheck-mode))
+  (add-hook 'rust-mode-hook 'cargo-minor-mode)
+  (add-hook 'toml-mode-hook 'cargo-minor-mode))
+
+(use-package flycheck-rust
+  :ensure t
+  :init
+  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
 ;; Org-mode
 (use-package org
@@ -206,10 +207,12 @@
   :ensure t)
 
 ;; JavaScript
+;; eglot support requires running `npm install --global javascript-typescript-langserver` first
 (use-package js2-mode
   :mode "\\.js\\'"
   :ensure t
-  :init (add-hook 'js2-mode-hook (lambda () (setq indent-tabs-mode nil))))
+  :init
+  (add-hook 'js2-mode-hook #'eglot-ensure))
 
 
 ;; ================================================
@@ -294,7 +297,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (web-mode dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
+    (flycheck-rust cargo web-mode dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish eglot js2-mode rust-mode spaceline company flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
  '(spaceline-all-the-icons-flycheck-alternate t)
  '(spaceline-all-the-icons-hide-long-buffer-path t)
  '(spaceline-all-the-icons-slim-render t))
