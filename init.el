@@ -214,6 +214,9 @@
   :init
   (add-hook 'js2-mode-hook #'eglot-ensure))
 
+(use-package go-mode
+  :ensure t
+  :mode "\\.go\\'")
 
 ;; ================================================
 ;; Theme
@@ -297,7 +300,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (flycheck-rust cargo web-mode dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish eglot js2-mode rust-mode spaceline company flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
+    (go-mode flycheck-rust cargo web-mode dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish eglot js2-mode rust-mode spaceline company flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
  '(spaceline-all-the-icons-flycheck-alternate t)
  '(spaceline-all-the-icons-hide-long-buffer-path t)
  '(spaceline-all-the-icons-slim-render t))
