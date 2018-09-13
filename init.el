@@ -41,7 +41,7 @@
 (setq frame-title-format nil)
 
 ;; UI settings
-(add-to-list 'default-frame-alist '(font . "Source Code Pro-13"))
+(add-to-list 'default-frame-alist '(font . "Source Code Pro-12"))
 
 ;; ================================================
 ;; Packaging
@@ -300,10 +300,12 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (go-mode flycheck-rust cargo web-mode dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish eglot js2-mode rust-mode spaceline company flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
+    (go-mode web-mode flycheck-rust cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
+ '(spaceline-all-the-icons-clock-always-visible nil)
  '(spaceline-all-the-icons-flycheck-alternate t)
  '(spaceline-all-the-icons-hide-long-buffer-path t)
- '(spaceline-all-the-icons-slim-render t))
+ '(spaceline-all-the-icons-separators-invert-direction t)
+ '(spaceline-all-the-icons-slim-render nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
