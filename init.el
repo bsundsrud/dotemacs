@@ -252,7 +252,14 @@
 (general-define-key
  "C-s" 'swiper
  "M-x" 'counsel-M-x
- "M-s-u" 'revert-buffer-no-confirm
+ "M-s-u" 'revert-buffer-no-confirm)
+
+;; Code actions via eglot
+(general-define-key
+ "C-c r" 'eglot-rename
+ "C-c f" 'eglot-format
+ "C-c C-f" 'eglot-format-buffer
+ "C-c h" 'eglot-help-at-point
  )
 
 ;; setup normal mode evil shortcuts
@@ -316,7 +323,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (evil-goggles go-mode web-mode flycheck-rust cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
+    (flymake eglot company-go evil-goggles go-mode web-mode flycheck-rust cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
  '(spaceline-all-the-icons-clock-always-visible nil)
  '(spaceline-all-the-icons-flycheck-alternate t)
  '(spaceline-all-the-icons-hide-long-buffer-path t)
