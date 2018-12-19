@@ -100,6 +100,11 @@
     (projectile-mode t)
     (counsel-projectile-mode 1)))
 
+(use-package editorconfig
+  :ensure t
+  :config
+  (editorconfig-mode 1))
+
 (use-package evil
   :ensure t
   :diminish 'undo-tree-mode
