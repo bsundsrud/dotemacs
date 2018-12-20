@@ -103,7 +103,10 @@
 (use-package editorconfig
   :ensure t
   :config
-  (editorconfig-mode 1))
+  (progn
+    (setq editorconfig-indentation-alist
+          (append editorconfig-indentation-alist '((vcl-mode c-basic-offset))))
+    (editorconfig-mode 1)))
 
 (use-package evil
   :ensure t
@@ -199,9 +202,7 @@
 ;; VCL
 (use-package vcl-mode
   :mode "\\.vcl\\'"
-  :ensure t
-  :config
-  (setq-default c-basic-offset 4))
+  :ensure t)
 
 ;; JSON
 (use-package json-mode
