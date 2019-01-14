@@ -24,6 +24,7 @@
 (setq default-fill-column 80)		; toggle wrapping text at the 80th character
 (setq initial-scratch-message ";; Scratch ELisp Buffer") ; print a default message in the empty scratch buffer opened at startup
 (setq show-paren-delay 0)
+(setq ido-auto-merge-delay-time 1)
 (show-paren-mode 1)
 (global-display-line-numbers-mode 1)
 (setq display-line-numbers 'relative)
@@ -34,6 +35,9 @@
 (tooltip-mode    -1)
 (menu-bar-mode   -1)
 
+;; Use emacs terminfo
+(setq system-uses-terminfo nil)
+
 ;; Fancy titlebar for MacOS
 (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
 (add-to-list 'default-frame-alist '(ns-appearance . dark))
@@ -41,7 +45,7 @@
 (setq frame-title-format nil)
 
 ;; UI settings
-(add-to-list 'default-frame-alist '(font . "Source Code Pro-12"))
+(add-to-list 'default-frame-alist '(font . "Source Code Pro-14"))
 
 ;; ================================================
 ;; Packaging
@@ -71,10 +75,12 @@
 
 (use-package ivy
   :ensure t
+  :diminish
   :config (ivy-mode 1))
 
 (use-package counsel
   :ensure t
+  :diminish
   :config (counsel-mode 1))
 
 (use-package swiper :ensure t)
@@ -94,6 +100,7 @@
 
 (use-package counsel-projectile
   :ensure t
+  :diminish
   :commands (counsel-projectile-mode)
   :init
   (progn
@@ -102,6 +109,7 @@
 
 (use-package editorconfig
   :ensure t
+  :diminish
   :config
   (progn
     (setq editorconfig-indentation-alist
@@ -120,6 +128,7 @@
 
 (use-package evil-goggles
   :ensure t
+  :diminish
   :config
   (evil-goggles-mode)
 
@@ -130,6 +139,7 @@
   (evil-goggles-use-diff-faces))
 
 (use-package flycheck
+  :diminish
   :ensure t
   :init (global-flycheck-mode 1))
 
@@ -139,9 +149,23 @@
 
 (use-package company
   :ensure t
+  :diminish
   :bind ("C-<tab>" . company-complete)
   :config
   (global-company-mode 1))
+
+(use-package multi-term
+  :ensure t
+  :config
+  (progn
+    (setq multi-term-program "/bin/bash")
+    (setq multi-term-dedicated-select-after-open-p t)
+    (setq multi-term-dedicated-skip-other-window-p t)))
+
+(use-package eterm-256color
+  :ensure t
+  :config
+  (add-hook 'term-mode-hook #'eterm-256color-mode))
  
 ;; ================================================
 ;; UI Packages
@@ -154,12 +178,12 @@
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
 
 (use-package spaceline
-  :ensure t)
-
-(use-package spaceline-all-the-icons
   :ensure t
-  :after spaceline
-  :config (spaceline-all-the-icons-theme))
+  :init
+  (require 'spaceline-config)
+  (setq spaceline-highlight-face-func 'spaceline-highlight-face-evil-state)
+  :config
+  (spaceline-emacs-theme))
 
 ;; ================================================
 ;; Language Support
@@ -191,6 +215,7 @@
 
 (use-package org-bullets
   :ensure t
+  :diminish
   :commands (org-bullets-mode)
   :init (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
@@ -223,6 +248,10 @@
 ;; Dockerfile
 (use-package dockerfile-mode
   :mode "Dockerfile\\'"
+  :ensure t)
+(use-package docker-compose-mode
+  :mode ("docker-compose.yml\\'"
+         "docker-compose.yaml\\'")
   :ensure t)
 
 ;; Web
@@ -261,11 +290,26 @@
   "Revert buffer without confirmation."
   (interactive) (revert-buffer t t))
 
+(defun last-term-buffer (l)
+  "Return most recently used term buffer from buffer list L."
+  (when l
+    (if (eq 'term-mode (with-current-buffer (car l) major-mode))
+        (car l) (last-term-buffer (cdr l)))))
+
+(defun get-term ()
+  "Switch to the term buffer last used, or create a new one if none exists, or if the current buffer is already a term."
+  (interactive)
+  (let ((b (last-term-buffer (buffer-list))))
+    (if (or (not b) (eq 'term-mode major-mode))
+        (multi-term)
+      (switch-to-buffer b))))
+
 ;; Override emacs globals
 (general-define-key
  "C-s" 'swiper
  "M-x" 'counsel-M-x
- "M-s-u" 'revert-buffer-no-confirm)
+ "M-s-u" 'revert-buffer-no-confirm
+ "<f12>" 'multi-term-dedicated-toggle)
 
 ;; Code actions via eglot
 (general-define-key
@@ -291,6 +335,7 @@
  "/"   '(counsel-rg :which-key "ripgrep")
  "TAB" '(switch-to-prev-buffer :which-key "previous buffer")
  "SPC" '(counsel-M-x :which-key "M-x")
+ "RET" 'get-term
  "g"   '(:ignore t :which-key "buffers")
  "gT"  '(switch-to-prev-buffer :which-key "previous buffer")
  "gt"  '(switch-to-next-buffer :which-key "next buffer")
@@ -336,7 +381,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (vcl-mode flymake eglot company-go evil-goggles go-mode web-mode flycheck-rust cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
+    (docker-compose-mode multiline multi-term vcl-mode flymake eglot company-go evil-goggles go-mode web-mode flycheck-rust cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
  '(spaceline-all-the-icons-clock-always-visible nil)
  '(spaceline-all-the-icons-flycheck-alternate t)
  '(spaceline-all-the-icons-hide-long-buffer-path t)
