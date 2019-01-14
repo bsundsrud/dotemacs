@@ -96,7 +96,9 @@
   :ensure t
   :diminish
   :commands (projectile-mode)
-  :config (setq projectile-completion-system 'ivy))
+  :config
+  (setq projectile-completion-system 'ivy)
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
 
 (use-package counsel-projectile
   :ensure t
@@ -308,6 +310,7 @@
 (general-define-key
  "C-s" 'swiper
  "M-x" 'counsel-M-x
+ "C-x C-b" 'ibuffer
  "M-s-u" 'revert-buffer-no-confirm
  "<f12>" 'multi-term-dedicated-toggle)
 
