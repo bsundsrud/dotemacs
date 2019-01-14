@@ -92,10 +92,17 @@
   :diminish
   :config (which-key-mode 1))
 
+(defun set-gopath-for-go-projects-hook ()
+  "Projectile hook to detect a go project and run go-set-project."
+  (if (eq major-mode 'go-mode)
+      (go-set-project)))
+
 (use-package projectile
   :ensure t
   :diminish
   :commands (projectile-mode)
+  :init
+  (add-hook 'projectile-after-switch-project-hook #'set-gopath-for-go-projects-hook)
   :config
   (setq projectile-completion-system 'ivy)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
