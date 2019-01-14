@@ -133,7 +133,9 @@
   (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
   (evil-define-key 'normal neotree-mode-map (kbd "z") 'neotree-quick-look)
   (evil-define-key 'normal neotree-mode-map (kbd "q") 'neotree-hide)
-  (evil-define-key 'normal neotree-mode-map (kbd "RET") 'neotree-enter))
+  (evil-define-key 'normal neotree-mode-map (kbd "RET") 'neotree-enter)
+  (delete 'term-mode evil-insert-state-modes)
+  (add-to-list 'evil-emacs-state-modes 'term-mode))
 
 (use-package evil-goggles
   :ensure t
