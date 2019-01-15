@@ -165,13 +165,18 @@
   :config
   (global-company-mode 1))
 
+(defun my-term-mode-hook ()
+  "Disable line numbers in terminals, as that seems to screw with dimension calculation."
+  (display-line-numbers-mode 0))
+
 (use-package multi-term
   :ensure t
   :config
   (progn
     (setq multi-term-program "/bin/bash")
     (setq multi-term-dedicated-select-after-open-p t)
-    (setq multi-term-dedicated-skip-other-window-p t)))
+    (setq multi-term-dedicated-skip-other-window-p t)
+    (add-hook 'term-mode-hook #'my-term-mode-hook)))
 
 (use-package eterm-256color
   :ensure t
