@@ -219,10 +219,9 @@
   (add-hook 'rust-mode-hook 'cargo-minor-mode)
   (add-hook 'toml-mode-hook 'cargo-minor-mode))
 
-(use-package flycheck-rust
+(use-package racket-mode
   :ensure t
-  :init
-  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+  :mode ("\\.rkt\\'" . racket-mode))
 
 ;; Org-mode
 (use-package org
@@ -398,7 +397,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (docker-compose-mode multiline multi-term vcl-mode flymake eglot company-go evil-goggles go-mode web-mode flycheck-rust cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
+    (racket-mode docker-compose-mode multiline multi-term vcl-mode flymake eglot company-go evil-goggles go-mode web-mode flycheck-rust cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
  '(spaceline-all-the-icons-clock-always-visible nil)
  '(spaceline-all-the-icons-flycheck-alternate t)
  '(spaceline-all-the-icons-hide-long-buffer-path t)
