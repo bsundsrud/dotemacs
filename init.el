@@ -269,6 +269,12 @@
          "docker-compose.yaml\\'")
   :ensure t)
 
+;; Groovy/Jenkinsfile
+(use-package groovy-mode
+  :mode ("\\.groovy\\'"
+         "Jenkinsfile\\'")
+  :ensure t)
+
 ;; Web
 (use-package web-mode
   :mode "\\.html\\'"
@@ -333,6 +339,7 @@
  "C-c f" 'eglot-format
  "C-c C-f" 'eglot-format-buffer
  "C-c h" 'eglot-help-at-point
+ "C-c TAB" 'eglot-code-actions
  )
 
 ;; setup normal mode evil shortcuts
@@ -397,7 +404,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (racket-mode docker-compose-mode multiline multi-term vcl-mode flymake eglot company-go evil-goggles go-mode web-mode flycheck-rust cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
+    (groovy-mode racket-mode docker-compose-mode multiline multi-term vcl-mode flymake eglot company-go evil-goggles go-mode web-mode flycheck-rust cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
  '(spaceline-all-the-icons-clock-always-visible nil)
  '(spaceline-all-the-icons-flycheck-alternate t)
  '(spaceline-all-the-icons-hide-long-buffer-path t)
