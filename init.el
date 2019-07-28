@@ -205,12 +205,19 @@
 ;; Language Support
 ;; ================================================
 
+(defun rust-mode-custom-hook ()
+  "Custom mode hook for rust."
+  (progn
+    (flycheck-mode 0)))
+  
+
 ;; Rust
 (use-package rust-mode
   :ensure t
   :mode "\\.rs\\'"
   :init
   (add-hook 'rust-mode-hook #'eglot-ensure)
+  (add-hook 'rust-mode-hook #'rust-mode-custom-hook)
   :config (setq rust-format-on-save t))
 
 (use-package cargo
@@ -290,7 +297,11 @@
 
 (use-package go-mode
   :ensure t
-  :mode "\\.go\\'")
+  :mode "\\.go\\'"
+  :init
+  (add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
+  (add-hook 'before-save-hook #'gofmt-before-save))
+
 
 ;; ================================================
 ;; Theme
@@ -403,7 +414,6 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(org-babel-load-languages (quote ((emacs-lisp . t) (shell . t))))
- '(org-export-backends (quote (ascii html icalendar latex md odt)))
  '(package-selected-packages
    (quote
     (groovy-mode racket-mode docker-compose-mode multiline multi-term vcl-mode flymake eglot company-go evil-goggles go-mode web-mode flycheck-rust cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
