@@ -215,16 +215,13 @@
 (use-package rust-mode
   :ensure t
   :mode "\\.rs\\'"
-  :init
-  (add-hook 'rust-mode-hook #'eglot-ensure)
-  (add-hook 'rust-mode-hook #'rust-mode-custom-hook)
+  :hook ((rust-mode . eglot-ensure)
+         (rust-mode . rust-mode-custom-hook))
   :config (setq rust-format-on-save t))
 
 (use-package cargo
   :ensure t
-  :init
-  (add-hook 'rust-mode-hook 'cargo-minor-mode)
-  (add-hook 'toml-mode-hook 'cargo-minor-mode))
+  :hook ((rust-mode toml-mode) . cargo-minor-mode))
 
 (use-package racket-mode
   :ensure t
@@ -416,7 +413,7 @@
  '(org-babel-load-languages (quote ((emacs-lisp . t) (shell . t))))
  '(package-selected-packages
    (quote
-    (groovy-mode racket-mode docker-compose-mode multiline multi-term vcl-mode flymake eglot company-go evil-goggles go-mode web-mode flycheck-rust cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
+    (typescript-mode groovy-mode racket-mode docker-compose-mode multiline multi-term vcl-mode flymake eglot company-go evil-goggles go-mode web-mode flycheck-rust cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
  '(spaceline-all-the-icons-clock-always-visible nil)
  '(spaceline-all-the-icons-flycheck-alternate t)
  '(spaceline-all-the-icons-hide-long-buffer-path t)
