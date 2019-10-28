@@ -388,7 +388,7 @@
  "gT"  '(switch-to-prev-buffer :which-key "previous buffer")
  "gt"  '(switch-to-next-buffer :which-key "next buffer")
  "gb"  '(counsel-ibuffer :which-key "buffers list")
- "`" '(treemacs :which-key "Toggle treemacs"))
+ "`" '(treemacs-select-window :which-key "Show treemacs"))
 
 ;; setup evil leader shortcuts
 (general-define-key
