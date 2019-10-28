@@ -15,7 +15,7 @@ Emacs config meant to work for me, personally, while still looking good.  Faster
 
 This setup uses RLS and rustfmt when in `rust-mode`.  Use the following rustup command to install all the necessary components:
 
-* `rustup component add rls-preview rust-analysis rust-src rustfmt-preview`
+* `rustup component add rls rust-analysis rust-src rustfmt`
 
 ### JavaScript
 
