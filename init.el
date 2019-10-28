@@ -154,9 +154,15 @@
   :ensure t
   :init (global-flycheck-mode 1))
 
-(use-package eglot
+(use-package flycheck-rust
+  :diminish
+  :after flycheck
+  :ensure t)
+
+(use-package yasnippet
   :ensure t
-  :demand)
+  :diminish yas-minor-mode
+  :init (yas-global-mode 1))
 
 (use-package company
   :ensure t
@@ -164,6 +170,11 @@
   :bind ("C-<tab>" . company-complete)
   :config
   (global-company-mode 1))
+
+(use-package company-box
+  :ensure t
+  :diminish
+  :hook (company-mode . company-box-mode))
 
 (defun my-term-mode-hook ()
   "Disable line numbers in terminals, as that seems to screw with dimension calculation."
@@ -182,41 +193,61 @@
   :ensure t
   :config
   (add-hook 'term-mode-hook #'eterm-256color-mode))
- 
+
+(use-package lsp-mode
+  :ensure t
+  :hook (prog-mode . lsp-deferred)
+  :commands (lsp lsp-deferred)
+  :init (setq lsp-prefer-flymake nil))
+
+(use-package lsp-ui
+  :ensure t
+  :commands lsp-ui-mode)
+
+(use-package company-lsp
+  :ensure t
+  :commands company-lsp)
+
+(use-package lsp-treemacs
+  :ensure t
+  :commands lsp-treemacs-errors-list)
+
 ;; ================================================
 ;; UI Packages
 ;; ================================================
 (use-package all-the-icons :ensure t)
 
-(use-package neotree
+(use-package treemacs
   :ensure t
-  :init
-  (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
+  :defer t)
 
-(use-package spaceline
+(use-package treemacs-evil
+  :after treemacs evil
+  :ensure t)
+
+(use-package treemacs-projectile
+  :after treemacs projectile
+  :ensure t)
+
+(use-package treemacs-icons-dired
+  :after treemacs dired
   :ensure t
-  :init
-  (require 'spaceline-config)
-  (setq spaceline-highlight-face-func 'spaceline-highlight-face-evil-state)
-  :config
-  (spaceline-emacs-theme))
+  :config (treemacs-icons-dired-mode))
+
+(use-package doom-modeline
+  :ensure t
+  :hook (after-init . doom-modeline-mode))
 
 ;; ================================================
 ;; Language Support
 ;; ================================================
 
-(defun rust-mode-custom-hook ()
-  "Custom mode hook for rust."
-  (progn
-    (flycheck-mode 0)))
-  
 
 ;; Rust
 (use-package rust-mode
   :ensure t
   :mode "\\.rs\\'"
-  :hook ((rust-mode . eglot-ensure)
-         (rust-mode . rust-mode-custom-hook))
+  :hook ((flycheck-mode . flycheck-rust-setup))
   :config (setq rust-format-on-save t))
 
 (use-package cargo
@@ -339,7 +370,8 @@
  "M-x" 'counsel-M-x
  "C-x C-b" 'ibuffer
  "M-s-u" 'revert-buffer-no-confirm
- "<f12>" 'multi-term-dedicated-toggle)
+ "<f12>" 'multi-term-dedicated-toggle
+ "C-`" 'lsp-ui-imenu)
 
 ;; Code actions via eglot
 (general-define-key
@@ -352,11 +384,11 @@
 
 ;; setup normal mode evil shortcuts
 (general-define-key
- :states '(normal)
+ :states '(normal treemacs)
  "gT"  '(switch-to-prev-buffer :which-key "previous buffer")
  "gt"  '(switch-to-next-buffer :which-key "next buffer")
  "gb"  '(counsel-ibuffer :which-key "buffers list")
- "`" '(neotree-toggle :which-key "toggle neotree"))
+ "`" '(treemacs :which-key "Toggle treemacs"))
 
 ;; setup evil leader shortcuts
 (general-define-key
@@ -410,10 +442,17 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(lsp-ui-doc-max-height 20)
+ '(lsp-ui-doc-position (quote at-point))
+ '(lsp-ui-doc-use-childframe t)
+ '(lsp-ui-doc-use-webkit nil)
+ '(lsp-ui-sideline-ignore-duplicate t)
+ '(lsp-ui-sideline-show-hover t)
  '(org-babel-load-languages (quote ((emacs-lisp . t) (shell . t))))
  '(package-selected-packages
    (quote
-    (typescript-mode groovy-mode racket-mode docker-compose-mode multiline multi-term vcl-mode flymake eglot company-go evil-goggles go-mode web-mode flycheck-rust cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
+    (doom-modeline typescript-mode groovy-mode racket-mode docker-compose-mode multiline multi-term vcl-mode flymake eglot company-go evil-goggles go-mode web-mode cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
+ '(projectile-mode t nil (projectile))
  '(spaceline-all-the-icons-clock-always-visible nil)
  '(spaceline-all-the-icons-flycheck-alternate t)
  '(spaceline-all-the-icons-hide-long-buffer-path t)
