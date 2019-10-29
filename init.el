@@ -9,6 +9,12 @@
 (defconst IS-MAC     (eq system-type 'darwin))
 (defconst IS-LINUX   (eq system-type 'gnu/linux))
 (defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
+(defconst AT_LEAST_EMACS27 (not (version< emacs-version "27.0")))
+
+;; If not emacs27, then manually run early-init.el
+(unless AT_LEAST_EMACS27
+  (message "Manually invoking early-init")
+  (load-file (expand-file-name "early-init.el" user-emacs-directory)))
 
 ;; ================================================
 ;; Packaging Init
