@@ -455,6 +455,8 @@ it.  When we are inside the minibuffer use the regular
 exiting.  When there is no minibuffer `keyboard-quit' unless we
 are defining or executing a macro."
   (interactive)
+  (if (lsp-ui-doc--visible-p)
+      (lsp-ui-doc-hide))
   (cond ((active-minibuffer-window)
          (if (minibufferp)
              (minibuffer-keyboard-quit)
@@ -466,7 +468,12 @@ are defining or executing a macro."
          (unless (or defining-kbd-macro executing-kbd-macro)
            (keyboard-quit)))))
 
-
+(defun benn/toggle-lsp-ui-doc ()
+  "Toggle display of Documentation-at-point."
+  (interactive)
+  (if (lsp-ui-doc--visible-p)
+      (lsp-ui-doc-hide)
+    (lsp-ui-doc-show)))
 
 ;; ================================================
 ;; Keybindings
@@ -490,17 +497,20 @@ are defining or executing a macro."
  "C-c f"   'lsp-format-region
  "C-c C-f" 'lsp-format-buffer
  "C-c TAB" 'lsp-execute-code-action
- "C-c i"   'lsp-find-implementation
- "C-c d"   'lsp-find-definition)
+ "C-c i"   '(lsp-ui-peek-find-implementation :which-key "find implementations")
+ "C-c d"   '(xref-find-definitions :which-key "find definitions")
+ "C-c D"   '(xref-find-references :which-key "find-references")
+ "C-c h"   '(benn/toggle-lsp-ui-doc :which-key "Show docs"))
 
 ;; setup normal mode evil shortcuts
 (general-define-key
  :states '(normal treemacs)
- "M-." '(xref-find-definitions :which-key "find definitions")
- "M-?" '(xref-find-references :which-key "find references")
  "gT"  '(switch-to-prev-buffer :which-key "previous buffer")
  "gt"  '(switch-to-next-buffer :which-key "next buffer")
  "gb"  '(counsel-ibuffer :which-key "buffers list")
+ "g?"  '(xref-find-references :which-key "find-references")
+ "g."  '(xref-find-definitions :which-key "find definition")
+ "g/"  '(lsp-ui-peek-find-implementation : which-key "find implementations")
  "`" '(treemacs-select-window :which-key "Show treemacs"))
 
 ;; setup evil leader shortcuts
@@ -555,6 +565,7 @@ are defining or executing a macro."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(lsp-ui-doc-enable nil)
  '(lsp-ui-doc-max-height 20)
  '(lsp-ui-doc-position 'at-point)
  '(lsp-ui-doc-use-childframe t)
