@@ -5,3 +5,6 @@ projectile-bookmarks.eld
 .cache/
 recentf
 session.*
+.lsp-session-v1
+.org-id-locations
+history

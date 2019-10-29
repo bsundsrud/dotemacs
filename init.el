@@ -1,59 +1,19 @@
-;; Speed up startup
-(defvar init--file-name-handler-alist file-name-handler-alist)
-(setq gc-cons-threshold 402653184
-      gc-cons-percentage 0.6
-      file-name-handler-alist nil)
+;;; init.el --- Emacs main configuration file -*- lexical-binding: t; no-byte-compile: t -*-
+;;;
+;;; Commentary:
+;;; Emacs configuration.
+;;;
+;;; Code:
 
-
-;; ================================================
-;; Global prefs
-;; ================================================
-(setq delete-old-versions -1 )		; delete excess backup versions silently
-(setq version-control t )		; use version control
-(setq vc-make-backup-files t )		; make backups file even when in version controlled dir
-(setq backup-directory-alist `(("." . "~/.emacs.d/backups")) ) ; which directory to put backups file
-(setq vc-follow-symlinks t )				       ; don't ask for confirmation when opening symlinked file
-(setq make-backup-files nil) ; stop creating backup~ files
-(setq auto-save-default nil) ; stop creating #autosave# files
-(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)) ) ;transform backups file name
-(setq inhibit-startup-screen t )	; inhibit useless and old-school startup screen
-(setq ring-bell-function 'ignore )	; silent bell when you make a mistake
-(setq coding-system-for-read 'utf-8 )	; use utf-8 by default
-(setq coding-system-for-write 'utf-8 )
-(setq sentence-end-double-space nil)	; sentence SHOULD end with only a point.
-(setq default-fill-column 80)		; toggle wrapping text at the 80th character
-(setq initial-scratch-message ";; Scratch ELisp Buffer") ; print a default message in the empty scratch buffer opened at startup
-(setq show-paren-delay 0)
-(setq ido-auto-merge-delay-time 1)
-(show-paren-mode 1)
-(global-display-line-numbers-mode 1)
-(setq display-line-numbers 'relative)
-(setq-default indent-tabs-mode nil)     ; use spaces instead of tabs
-;; Minimal UI
-(scroll-bar-mode -1)
-(tool-bar-mode   -1)
-(tooltip-mode    -1)
-(menu-bar-mode   -1)
-
-;; Use emacs terminfo
-(setq system-uses-terminfo nil)
-
-;; Fancy titlebar for MacOS
-(add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-(add-to-list 'default-frame-alist '(ns-appearance . dark))
-(setq ns-use-proxy-icon  nil)
-(setq frame-title-format nil)
-
-;; UI settings
-(add-to-list 'default-frame-alist '(font . "Source Code Pro-14"))
+;; System probing
+(defconst IS-MAC     (eq system-type 'darwin))
+(defconst IS-LINUX   (eq system-type 'gnu/linux))
+(defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
 
 ;; ================================================
-;; Packaging
+;; Packaging Init
 ;; ================================================
-(require 'package)
-(setq package-enable-at-startup nil) ; tells emacs not to load any packages before starting up
-;; the following lines tell emacs where on the internet to look up
-;; for new packages.
+(defvar package-archives)
 (setq package-archives '(("org"       . "http://orgmode.org/elpa/")
                          ("gnu"       . "http://elpa.gnu.org/packages/")
                          ("melpa"     . "https://melpa.org/packages/")))
@@ -64,51 +24,152 @@
   (package-refresh-contents) ; updage packages archive
   (package-install 'use-package)) ; and install the most recent version of use-package
 
-(require 'use-package)
+(eval-when-compile
+  (require 'use-package)
+  (setq use-package-always-ensure t))
 
+;; ================================================
+;; Global prefs
+;; ================================================
+(setq user-mail-address "benn.sundsrud@gmail.com"
+      user-full-name "Benn Sundsrud")
+(setq backup-by-copying t
+      create-lockfiles nil
+      backup-directory-alist '(("." . "~/.emacs.d/emacs-backups"))
+      auto-save-file-name-transforms '((".*" "~/.emacs.d/emacs-backups" t)))
+(setq make-backup-files nil) ; stop creating backup~ files
+(setq auto-save-default nil) ; stop creating #autosave# files
+
+(setq version-control t )		; use version control
+(setq vc-follow-symlinks t )	        ; don't ask for confirmation when opening symlinked file
+(setq-default mouse-wheel-progressive-speed nil
+              auto-window-vscroll nil)  ; change scroll behavior to be actually predictable
+
+(setq inhibit-startup-screen t )	; inhibit useless and old-school startup screen
+(setq ring-bell-function 'ignore )	; silent bell when you make a mistake
+(setq coding-system-for-read 'utf-8 )	; use utf-8 by default
+(setq coding-system-for-write 'utf-8 )
+(prefer-coding-system 'utf-8)
+(setq locale-coding-system 'utf-8)
+;; Clipboard contents could be non-utf8 on windows
+(unless IS-WINDOWS
+  (setq selection-coding-system 'utf-8))
+(savehist-mode 1)                       ; save history between sessions
+(add-hook 'before-save-hook 'delete-trailing-whitespace) ; delete trailing whitespace
+(setq-default bidi-display-reordering 'left-to-right) ; disable RTL for a performance boost
+(setq sentence-end-double-space nil)	; sentence SHOULD end with only a point.
+(setq default-fill-column 80)		; toggle wrapping text at the 80th character
+(setq initial-major-mode 'fundamental-mode
+      initial-scratch-message "") ; set scratch to be text instead of elisp and blank
+(delete-selection-mode t)               ; Overwrite selection by typing
+(setq show-paren-delay 0)               ; Don't delay before highlighting matching parens
+(show-paren-mode 1)                     ; enable show-paren-mode globally
+(setq-default indent-tabs-mode nil)     ; use spaces instead of tabs
+(fset 'yes-or-no-p 'y-or-n-p)           ; Answer y or n instead of having to type yes or no
+(put 'erase-buffer 'disabled nil)       ; enable the erase-buffer command
+;; Minimal UI
+(when window-system
+  (scroll-bar-mode -1)
+  (tool-bar-mode   -1))
+(tooltip-mode    -1)
+(menu-bar-mode   -1)
+(fset 'menu-bar-open nil)
+
+;; use bar cursor
+(when window-system
+  (setq-default cursor-type 'bar
+                cursor-in-non-selected-windows nil))
+
+;; Name the frame after the current buffer name
+(setq-default frame-title-format '("%b — Emacs"))
+
+;; Use emacs terminfo
+(setq system-uses-terminfo nil)
+
+;; Fancy titlebar for MacOS
+(when IS-MAC
+  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+  (add-to-list 'default-frame-alist '(ns-appearance . dark))
+  (setq ns-use-proxy-icon  nil)
+  (setq frame-title-format nil))
+
+;; UI settings
+(add-to-list 'default-frame-alist '(font . "Source Code Pro-14"))
 ;; ================================================
 ;; Core packages
 ;; ================================================
-(use-package avy :ensure t)
 
-(use-package general :ensure t)
+;; GC magic hack
+(use-package gcmh
+  :commands gcmh-mode
+  :init (gcmh-mode 1))
 
+;; Very large file handling
+(use-package vlf-setup
+  :ensure vlf
+  :config (setq vlf-application 'dont-ask))
+
+;; Jump to char
+(use-package avy)
+
+;; Easier keyboard definitions
+(use-package general)
+
+;; Completion frontend
 (use-package ivy
-  :ensure t
   :diminish
-  :config (ivy-mode 1))
+  :commands ivy-mode
+  :bind (("C-x b" . ivy-switch-buffer))
+  :init (ivy-mode 1))
 
+;; ivy plugin for minibuffer
 (use-package counsel
-  :ensure t
   :diminish
+  :commands (counsel-M-x
+               counsel-find-file
+               counsel-file-jump
+               counsel-recentf
+               counsel-rg
+               counsel-describe-function
+               counsel-describe-variable
+               counsel-find-library)
+  :bind (("M-x" . counsel-M-x)
+           ("C-x C-f" . counsel-find-file)
+           ("C-x f" . counsel-file-jump)
+           ("C-x C-r" . counsel-recentf)
+           ("C-h f" . counsel-describe-function)
+           ("C-h v" . counsel-describe-variable)
+           ("C-h l" . counsel-find-library))
   :config (counsel-mode 1))
 
-(use-package swiper :ensure t)
+;; ivy plugin for searching
+(use-package swiper)
 
-(use-package diminish :ensure t)
+;; remove minor-modes from modeline
+(use-package diminish)
 
+;; minibuffer display for hotkeys
 (use-package which-key
-  :ensure t
   :diminish
   :config (which-key-mode 1))
 
-(defun set-gopath-for-go-projects-hook ()
+(defun benn/set-gopath-for-go-projects-hook ()
   "Projectile hook to detect a go project and run go-set-project."
   (if (eq major-mode 'go-mode)
       (go-set-project)))
 
+;; project management
 (use-package projectile
-  :ensure t
   :diminish
   :commands (projectile-mode)
   :init
-  (add-hook 'projectile-after-switch-project-hook #'set-gopath-for-go-projects-hook)
+  (add-hook 'projectile-after-switch-project-hook 'benn/set-gopath-for-go-projects-hook)
   :config
   (setq projectile-completion-system 'ivy)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
 
+;; projectile integration for counsel
 (use-package counsel-projectile
-  :ensure t
   :diminish
   :commands (counsel-projectile-mode)
   :init
@@ -116,8 +177,8 @@
     (projectile-mode t)
     (counsel-projectile-mode 1)))
 
+;; editorconfig integration for picking up whitespace/indentation settings
 (use-package editorconfig
-  :ensure t
   :diminish
   :config
   (progn
@@ -125,20 +186,21 @@
           (append editorconfig-indentation-alist '((vcl-mode c-basic-offset))))
     (editorconfig-mode 1)))
 
+;; Vi modes for emacs
 (use-package evil
-  :ensure t
   :diminish 'undo-tree-mode
   :config
   (evil-mode 1)
-  (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
-  (evil-define-key 'normal neotree-mode-map (kbd "z") 'neotree-quick-look)
-  (evil-define-key 'normal neotree-mode-map (kbd "q") 'neotree-hide)
-  (evil-define-key 'normal neotree-mode-map (kbd "RET") 'neotree-enter)
   (delete 'term-mode evil-insert-state-modes)
   (add-to-list 'evil-emacs-state-modes 'term-mode))
 
+;; undo mode
+(use-package undo-tree
+  :commands global-undo-tree-mode
+  :init (global-undo-tree-mode 1))
+
+;; flash line when performing evil-mode operations
 (use-package evil-goggles
-  :ensure t
   :diminish
   :config
   (evil-goggles-mode)
@@ -149,242 +211,287 @@
   ;; other faces such as `diff-added` will be used for other actions
   (evil-goggles-use-diff-faces))
 
+;; Diagnostics for lots of langs
 (use-package flycheck
   :diminish
-  :ensure t
   :init (global-flycheck-mode 1))
 
+;; rust integration for flycheck
 (use-package flycheck-rust
   :diminish
-  :after flycheck
-  :ensure t)
+  :after flycheck)
 
+;; text snippet manager
 (use-package yasnippet
-  :ensure t
   :diminish yas-minor-mode
+  :config
+  (use-package yasnippet-snippets)
+  (yas-reload-all)
   :init (yas-global-mode 1))
 
+;; code completion
 (use-package company
-  :ensure t
   :diminish
-  :bind ("C-<tab>" . company-complete)
+  :commands global-company-mode
+  :bind (:map global-map
+              ("C-<tab>" . company-complete-common-or-cycle)
+         :map company-active-map
+              ("<tab>" . company-complete-common-or-cycle)
+              ("TAB" . company-complete-common-or-cycle)
+              ("<S-Tab>" . company-select-previous)
+              ("<backtab>" . company-select-previous)
+              ("C-n" . company-select-next)
+              ("C-p" . company-select-previous))
+  :hook (after-init . global-company-mode)
   :config
-  (global-company-mode 1))
+  (setq company-require-match 'never
+        company-tooltip-align-annotations t))
 
+;; icons for company
 (use-package company-box
-  :ensure t
   :diminish
   :hook (company-mode . company-box-mode))
 
-(defun my-term-mode-hook ()
+(defun benn/term-mode-hook ()
   "Disable line numbers in terminals, as that seems to screw with dimension calculation."
   (display-line-numbers-mode 0))
 
+;; terminals in emacs
 (use-package multi-term
-  :ensure t
   :config
   (progn
     (setq multi-term-program "/bin/bash")
     (setq multi-term-dedicated-select-after-open-p t)
     (setq multi-term-dedicated-skip-other-window-p t)
-    (add-hook 'term-mode-hook #'my-term-mode-hook)))
+    (add-hook 'term-mode-hook 'benn/term-mode-hook)))
 
+;; colorful terminals in emacs
 (use-package eterm-256color
-  :ensure t
   :config
-  (add-hook 'term-mode-hook #'eterm-256color-mode))
+  (add-hook 'term-mode-hook 'eterm-256color-mode))
 
+;; Language Server Protocol
 (use-package lsp-mode
-  :ensure t
   :hook (prog-mode . lsp-deferred)
   :commands (lsp lsp-deferred)
   :init (setq lsp-prefer-flymake nil))
 
+;; ui elements for LSP
 (use-package lsp-ui
-  :ensure t
-  :commands lsp-ui-mode)
+  :commands lsp-ui-mode
+  :bind (:map lsp-ui-mode-map
+              ([remap xref-find-definitions] . 'lsp-ui-peek-find-definitions)
+              ([remap xref-find-references] . 'lsp-ui-peek-find-references)))
 
+;; completions via LSP
 (use-package company-lsp
-  :ensure t
   :commands company-lsp)
 
+;; treemacs integration with LSP
 (use-package lsp-treemacs
-  :ensure t
   :commands lsp-treemacs-errors-list)
 
 ;; ================================================
 ;; UI Packages
 ;; ================================================
-(use-package all-the-icons :ensure t)
+;; pretty icons
+(use-package all-the-icons)
 
+;; tree-view of project dirs
 (use-package treemacs
-  :ensure t
   :defer t)
 
+;; evil-mode integration for treemacs
 (use-package treemacs-evil
-  :after treemacs evil
-  :ensure t)
+  :after treemacs evil)
 
+;; projectile integration for treemacs
 (use-package treemacs-projectile
-  :after treemacs projectile
-  :ensure t)
+  :after treemacs projectile)
 
+;; treemacs icons in dired mode
 (use-package treemacs-icons-dired
   :after treemacs dired
-  :ensure t
   :config (treemacs-icons-dired-mode))
 
+;; configure display-line-numbers
+(use-package display-line-numbers
+  :ensure nil
+  :config
+  (global-display-line-numbers-mode 1)
+  (setq display-line-numbers-grow-only t
+        display-line-numbers-width-start t
+        display-line-numbers 'relative))
+
+;; auto-focus help windows
+(use-package help
+  :ensure nil
+  :config (setq help-window-select t))
+
+;; doom modeline
 (use-package doom-modeline
-  :ensure t
   :hook (after-init . doom-modeline-mode))
-
-;; ================================================
-;; Language Support
-;; ================================================
-
-
-;; Rust
-(use-package rust-mode
-  :ensure t
-  :mode "\\.rs\\'"
-  :hook ((flycheck-mode . flycheck-rust-setup))
-  :config (setq rust-format-on-save t))
-
-(use-package cargo
-  :ensure t
-  :hook ((rust-mode toml-mode) . cargo-minor-mode))
-
-(use-package racket-mode
-  :ensure t
-  :mode ("\\.rkt\\'" . racket-mode))
-
-;; Org-mode
-(use-package org
-  :ensure t
-  :mode ("\\.org\\'" . org-mode))
-
-(use-package org-bullets
-  :ensure t
-  :diminish
-  :commands (org-bullets-mode)
-  :init (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
-
-;; Markdown
-(use-package markdown-mode
-  :mode "\\.md\\'"
-  :ensure t)
-
-;; VCL
-(use-package vcl-mode
-  :mode "\\.vcl\\'"
-  :ensure t)
-
-;; JSON
-(use-package json-mode
-  :mode "\\.json\\'"
-  :ensure t)
-
-;; YAML
-(use-package yaml-mode
-  :mode ("\\.yaml\\'"
-	 "\\.yml\\'")
-  :ensure t)
-
-;; TOML
-(use-package toml-mode
-  :mode "\\.toml\\'"
-  :ensure t)
-
-;; Dockerfile
-(use-package dockerfile-mode
-  :mode "Dockerfile\\'"
-  :ensure t)
-(use-package docker-compose-mode
-  :mode ("docker-compose.yml\\'"
-         "docker-compose.yaml\\'")
-  :ensure t)
-
-;; Groovy/Jenkinsfile
-(use-package groovy-mode
-  :mode ("\\.groovy\\'"
-         "Jenkinsfile\\'")
-  :ensure t)
-
-;; Web
-(use-package web-mode
-  :mode "\\.html\\'"
-  :ensure t)
-
-;; JavaScript
-;; eglot support requires running `npm install --global javascript-typescript-langserver` first
-(use-package js2-mode
-  :mode "\\.js\\'"
-  :ensure t
-  :init
-  (add-hook 'js2-mode-hook #'eglot-ensure))
-
-(use-package go-mode
-  :ensure t
-  :mode "\\.go\\'"
-  :init
-  (add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
-  (add-hook 'before-save-hook #'gofmt-before-save))
-
 
 ;; ================================================
 ;; Theme
 ;; ================================================
 
 (use-package doom-themes
-  :ensure t
   :config
   (progn
     (setq doom-one-brighter-comments t)
     (load-theme 'doom-one t)))
 
 ;; ================================================
-;; Keybindings
+;; Language Support
 ;; ================================================
 
-(defun revert-buffer-no-confirm ()
+;; Rust
+(use-package rust-mode
+  :mode "\\.rs\\'"
+  :hook ((flycheck-mode . flycheck-rust-setup))
+  :config (setq rust-format-on-save t))
+
+(use-package cargo
+  :hook ((rust-mode toml-mode) . cargo-minor-mode))
+
+;;; TOML
+(use-package toml-mode
+  :mode "\\.toml\\'")
+
+; Racket
+(use-package racket-mode
+  :mode ("\\.rkt\\'" . racket-mode))
+
+;; Org-mode
+(use-package org
+  :mode ("\\.org\\'" . org-mode))
+
+(use-package org-bullets
+  :diminish
+  :commands (org-bullets-mode)
+  :init (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
+;; Markdown
+(use-package markdown-mode
+  :mode "\\.md\\'")
+
+;; VCL
+(use-package vcl-mode
+  :mode "\\.vcl\\'")
+
+;; JSON
+(use-package json-mode
+  :mode "\\.json\\'")
+
+;; YAML
+(use-package yaml-mode
+  :mode ("\\.yaml\\'"
+	 "\\.yml\\'"))
+
+;; Dockerfile
+(use-package dockerfile-mode
+  :mode "Dockerfile\\'")
+(use-package docker-compose-mode
+  :mode ("docker-compose.yml\\'"
+         "docker-compose.yaml\\'"))
+
+;; Groovy/Jenkinsfile
+(use-package groovy-mode
+  :mode ("\\.groovy\\'"
+         "Jenkinsfile\\'"))
+
+;; Web
+(use-package web-mode
+  :mode "\\.html\\'")
+
+;; JavaScript
+;; lsp support requires running `npm install --global javascript-typescript-langserver` first
+(use-package js2-mode
+  :mode "\\.js\\'")
+
+;; Golang
+;; lsp support requires running `go get golang.org/x/tools/gopls@latest` first
+(use-package go-mode
+  :mode "\\.go\\'"
+  :init
+  (add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
+  (add-hook 'before-save-hook #'gofmt-before-save))
+
+;; ================================================
+;; Functions
+;; ================================================
+
+(defun benn/revert-buffer-no-confirm ()
   "Revert buffer without confirmation."
   (interactive) (revert-buffer t t))
 
-(defun last-term-buffer (l)
+(defun benn/last-term-buffer (l)
   "Return most recently used term buffer from buffer list L."
   (when l
     (if (eq 'term-mode (with-current-buffer (car l) major-mode))
-        (car l) (last-term-buffer (cdr l)))))
+        (car l) (benn/last-term-buffer (cdr l)))))
 
-(defun get-term ()
+(defun benn/get-term ()
   "Switch to the term buffer last used, or create a new one if none exists, or if the current buffer is already a term."
   (interactive)
-  (let ((b (last-term-buffer (buffer-list))))
+  (let ((b (benn/last-term-buffer (buffer-list))))
     (if (or (not b) (eq 'term-mode major-mode))
         (multi-term)
       (switch-to-buffer b))))
+
+(defun benn/escape ()
+  "Quit in current context.
+
+When there is an active minibuffer and we are not inside it close
+it.  When we are inside the minibuffer use the regular
+`minibuffer-keyboard-quit' which quits any active region before
+exiting.  When there is no minibuffer `keyboard-quit' unless we
+are defining or executing a macro."
+  (interactive)
+  (cond ((active-minibuffer-window)
+         (if (minibufferp)
+             (minibuffer-keyboard-quit)
+           (abort-recursive-edit)))
+        ((bound-and-true-p iedit-mode)
+         (iedit-quit))
+        (t
+         ;; ignore top level quits for macros
+         (unless (or defining-kbd-macro executing-kbd-macro)
+           (keyboard-quit)))))
+
+
+
+;; ================================================
+;; Keybindings
+;; ================================================
+
+;; Override `keyboard-quit` with our universal function
+(global-set-key [remap keyboard-quit] 'benn/escape)
 
 ;; Override emacs globals
 (general-define-key
  "C-s" 'swiper
  "M-x" 'counsel-M-x
  "C-x C-b" 'ibuffer
- "M-s-u" 'revert-buffer-no-confirm
+ "M-s-u" 'benn/revert-buffer-no-confirm
  "<f12>" 'multi-term-dedicated-toggle
  "C-`" 'lsp-ui-imenu)
 
-;; Code actions via eglot
+;; Code actions via lsp
 (general-define-key
- "C-c r" 'eglot-rename
- "C-c f" 'eglot-format
- "C-c C-f" 'eglot-format-buffer
- "C-c h" 'eglot-help-at-point
- "C-c TAB" 'eglot-code-actions
- )
+ "C-c r"   'lsp-rename
+ "C-c f"   'lsp-format-region
+ "C-c C-f" 'lsp-format-buffer
+ "C-c TAB" 'lsp-execute-code-action
+ "C-c i"   'lsp-find-implementation
+ "C-c d"   'lsp-find-definition)
 
 ;; setup normal mode evil shortcuts
 (general-define-key
  :states '(normal treemacs)
+ "M-." '(xref-find-definitions :which-key "find definitions")
+ "M-?" '(xref-find-references :which-key "find references")
  "gT"  '(switch-to-prev-buffer :which-key "previous buffer")
  "gt"  '(switch-to-next-buffer :which-key "next buffer")
  "gb"  '(counsel-ibuffer :which-key "buffers list")
@@ -398,7 +505,7 @@
  "/"   '(counsel-rg :which-key "ripgrep")
  "TAB" '(switch-to-prev-buffer :which-key "previous buffer")
  "SPC" '(counsel-M-x :which-key "M-x")
- "RET" 'get-term
+ "RET" 'benn/get-term
  "g"   '(:ignore t :which-key "buffers")
  "gT"  '(switch-to-prev-buffer :which-key "previous buffer")
  "gt"  '(switch-to-next-buffer :which-key "next buffer")
@@ -443,21 +550,15 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(lsp-ui-doc-max-height 20)
- '(lsp-ui-doc-position (quote at-point))
+ '(lsp-ui-doc-position 'at-point)
  '(lsp-ui-doc-use-childframe t)
  '(lsp-ui-doc-use-webkit nil)
  '(lsp-ui-sideline-ignore-duplicate t)
  '(lsp-ui-sideline-show-hover t)
- '(org-babel-load-languages (quote ((emacs-lisp . t) (shell . t))))
+ '(org-babel-load-languages '((emacs-lisp . t) (shell . t)))
  '(package-selected-packages
-   (quote
-    (doom-modeline typescript-mode groovy-mode racket-mode docker-compose-mode multiline multi-term vcl-mode flymake eglot company-go evil-goggles go-mode web-mode cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile spaceline-all-the-icons diminish lsp-rust rust-mode spaceline company lsp-ui lsp-mode flycheck doom-themes evil neotree all-the-icons which-key counsel ivy general use-package)))
- '(projectile-mode t nil (projectile))
- '(spaceline-all-the-icons-clock-always-visible nil)
- '(spaceline-all-the-icons-flycheck-alternate t)
- '(spaceline-all-the-icons-hide-long-buffer-path t)
- '(spaceline-all-the-icons-separators-invert-direction t)
- '(spaceline-all-the-icons-slim-render t))
+   '(yasnippet-snippets doom-modeline typescript-mode groovy-mode racket-mode docker-compose-mode multiline multi-term vcl-mode flymake company-go evil-goggles go-mode web-mode cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile diminish lsp-rust rust-mode company lsp-ui lsp-mode flycheck doom-themes evil all-the-icons which-key counsel ivy general use-package))
+ '(projectile-mode t nil (projectile)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -471,8 +572,5 @@
  '(evil-goggles-undo-redo-remove-face ((t (:inherit diff-removed))))
  '(evil-goggles-yank-face ((t (:inherit diff-changed)))))
 
-;; Restore settings
-(setq gc-cons-threshold 16777216
-      gc-cons-percentage 0.1
-      file-name-handler-alist init--file-name-handler-alist)
-(put 'erase-buffer 'disabled nil)
+(provide 'init)
+;;; init.el ends here
