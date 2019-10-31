@@ -19,6 +19,10 @@
 ;; ================================================
 ;; Packaging Init
 ;; ================================================
+;; Load local packages
+(let ((default-directory  (concat user-emacs-directory (convert-standard-filename "packages/"))))
+  (normal-top-level-add-subdirs-to-load-path))
+
 (defvar package-archives)
 (setq package-archives '(("org"       . "http://orgmode.org/elpa/")
                          ("gnu"       . "http://elpa.gnu.org/packages/")
@@ -188,8 +192,8 @@
   :diminish
   :config
   (progn
-    (setq editorconfig-indentation-alist
-          (append editorconfig-indentation-alist '((vcl-mode c-basic-offset))))
+    ;; (setq editorconfig-indentation-alist
+    ;;       (append editorconfig-indentation-alist '((vcl-mode c-basic-offset))))
     (editorconfig-mode 1)))
 
 ;; Vi modes for emacs
@@ -384,6 +388,7 @@
 
 ;; VCL
 (use-package vcl-mode
+  :ensure nil ; use local version in user-emacs-directory/packages
   :mode "\\.vcl\\'")
 
 ;; JSON
@@ -455,8 +460,9 @@ it.  When we are inside the minibuffer use the regular
 exiting.  When there is no minibuffer `keyboard-quit' unless we
 are defining or executing a macro."
   (interactive)
-  (if (lsp-ui-doc--visible-p)
-      (lsp-ui-doc-hide))
+  (when (boundp 'lsp-ui-doc--visible-p)
+    (if (lsp-ui-doc--visible-p)
+        (lsp-ui-doc-hide)))
   (cond ((active-minibuffer-window)
          (if (minibufferp)
              (minibuffer-keyboard-quit)
@@ -574,7 +580,7 @@ are defining or executing a macro."
  '(lsp-ui-sideline-show-hover t)
  '(org-babel-load-languages '((emacs-lisp . t) (shell . t)))
  '(package-selected-packages
-   '(yasnippet-snippets doom-modeline typescript-mode groovy-mode racket-mode docker-compose-mode multiline multi-term vcl-mode flymake company-go evil-goggles go-mode web-mode cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile diminish lsp-rust rust-mode company lsp-ui lsp-mode flycheck doom-themes evil all-the-icons which-key counsel ivy general use-package))
+   '(yasnippet-snippets doom-modeline typescript-mode groovy-mode racket-mode docker-compose-mode multiline multi-term flymake company-go evil-goggles go-mode web-mode cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile diminish lsp-rust rust-mode company lsp-ui lsp-mode flycheck doom-themes evil all-the-icons which-key counsel ivy general use-package))
  '(projectile-mode t nil (projectile)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
