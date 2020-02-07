@@ -77,6 +77,7 @@
 (setq-default indent-tabs-mode nil)     ; use spaces instead of tabs
 (fset 'yes-or-no-p 'y-or-n-p)           ; Answer y or n instead of having to type yes or no
 (put 'erase-buffer 'disabled nil)       ; enable the erase-buffer command
+(global-so-long-mode 1)                 ; enable so-long mode for better long line handling
 ;; Minimal UI
 (when window-system
   (scroll-bar-mode -1)
@@ -224,12 +225,12 @@
 ;; Diagnostics for lots of langs
 (use-package flycheck
   :diminish
-  :init (global-flycheck-mode 1))
+  :init (global-flycheck-mode 0))
 
 ;; rust integration for flycheck
-(use-package flycheck-rust
-  :diminish
-  :after flycheck)
+;; (use-package flycheck-rust
+;;   :diminish
+;;   :after flycheck)
 
 ;; text snippet manager
 (use-package yasnippet
@@ -282,10 +283,11 @@
 
 ;; Language Server Protocol
 (use-package lsp-mode
-  :hook (prog-mode . lsp-deferred)
-  :commands (lsp lsp-deferred)
-  :init (setq lsp-prefer-flymake nil))
-
+  :hook (
+         (prog-mode . lsp)
+         (lsp-mode . lsp-enable-which-key-integration))
+  :commands lsp
+  :init (setq lsp-keymap-prefix "C-c l"))
 ;; ui elements for LSP
 (use-package lsp-ui
   :commands lsp-ui-mode
@@ -293,13 +295,18 @@
               ([remap xref-find-definitions] . 'lsp-ui-peek-find-definitions)
               ([remap xref-find-references] . 'lsp-ui-peek-find-references)))
 
+;; ivy integration for LSP
+(use-package lsp-ivy
+  :commands lsp-ivy-workspace-symbol)
+
 ;; completions via LSP
 (use-package company-lsp
   :commands company-lsp)
 
 ;; treemacs integration with LSP
 (use-package lsp-treemacs
-  :commands lsp-treemacs-errors-list)
+  :commands lsp-treemacs-errors-list
+  :config (lsp-treemacs-sync-mode 1))
 
 ;; ================================================
 ;; UI Packages
@@ -383,8 +390,15 @@
   :init (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
 ;; Markdown
+
 (use-package markdown-mode
-  :mode "\\.md\\'")
+  :mode "\\.md\\'"
+  :init
+  (use-package request-deferred
+    :ensure t)
+  (use-package github-markdown-preview
+    :ensure nil
+    :after request-deferred))
 
 ;; VCL
 (use-package vcl-mode
@@ -488,6 +502,10 @@ are defining or executing a macro."
 ;; Override `keyboard-quit` with our universal function
 (global-set-key [remap keyboard-quit] 'benn/escape)
 
+;; unbind keys I fat-finger accidentally
+(general-unbind
+  "C-x C-c")
+
 ;; Override emacs globals
 (general-define-key
  "C-s" 'swiper
@@ -495,11 +513,13 @@ are defining or executing a macro."
  "C-x C-b" 'ibuffer
  "M-s-u" 'benn/revert-buffer-no-confirm
  "<f12>" 'multi-term-dedicated-toggle
- "C-`" 'lsp-ui-imenu)
+ "C-`" 'lsp-ui-imenu
+ "C-x C-S-c" 'save-buffers-kill-terminal)
 
 ;; Code actions via lsp
 (general-define-key
  "C-c r"   'lsp-rename
+ "C-c e"   '(lsp-treemacs-errors-list :which-key "Show error list")
  "C-c f"   'lsp-format-region
  "C-c C-f" 'lsp-format-buffer
  "C-c TAB" 'lsp-execute-code-action
@@ -507,6 +527,11 @@ are defining or executing a macro."
  "C-c d"   '(xref-find-definitions :which-key "find definitions")
  "C-c D"   '(xref-find-references :which-key "find-references")
  "C-c h"   '(benn/toggle-lsp-ui-doc :which-key "Show docs"))
+
+;; LSP keymap
+(general-define-key
+ :states '(normal visual insert emacs)
+ :keymaps 'lsp-mode-map)
 
 ;; setup normal mode evil shortcuts
 (general-define-key
@@ -571,6 +596,12 @@ are defining or executing a macro."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("2d1fe7c9007a5b76cea4395b0fc664d0c1cfd34bb4f1860300347cdad67fb2f9" "2d392972cbe692ee4ac61dc79907af65051450caf690a8c4d36eb40c1857ba7d" "c8f959fb1ea32ddfc0f50db85fea2e7d86b72bb4d106803018be1c3566fd6c72" default))
+ '(lsp-rust-analyzer-cargo-watch-enable t)
+ '(lsp-rust-analyzer-server-display-inlay-hints nil)
+ '(lsp-rust-clippy-preference "on")
+ '(lsp-rust-server 'rls)
  '(lsp-ui-doc-enable nil)
  '(lsp-ui-doc-max-height 20)
  '(lsp-ui-doc-position 'at-point)
@@ -580,8 +611,11 @@ are defining or executing a macro."
  '(lsp-ui-sideline-show-hover t)
  '(org-babel-load-languages '((emacs-lisp . t) (shell . t)))
  '(package-selected-packages
-   '(yasnippet-snippets doom-modeline typescript-mode groovy-mode racket-mode docker-compose-mode multiline multi-term flymake company-go evil-goggles go-mode web-mode cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile diminish lsp-rust rust-mode company lsp-ui lsp-mode flycheck doom-themes evil all-the-icons which-key counsel ivy general use-package))
- '(projectile-mode t nil (projectile)))
+   '(lsp-ivy request-deferred yasnippet-snippets doom-modeline typescript-mode groovy-mode racket-mode docker-compose-mode multiline multi-term flymake company-go evil-goggles go-mode web-mode cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile diminish lsp-rust rust-mode company lsp-ui lsp-mode flycheck doom-themes evil all-the-icons which-key counsel ivy general use-package))
+ '(projectile-mode t nil (projectile))
+ '(ps-always-build-face-reference t)
+ '(ps-default-fg 'frame-parameter)
+ '(ps-font-size 12.0))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
