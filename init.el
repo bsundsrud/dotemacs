@@ -281,6 +281,10 @@
   :config
   (add-hook 'term-mode-hook 'eterm-256color-mode))
 
+;; Magit
+(use-package magit
+    :ensure t)
+
 ;; Language Server Protocol
 (use-package lsp-mode
   :hook (
@@ -611,7 +615,7 @@ are defining or executing a macro."
  '(lsp-ui-sideline-show-hover t)
  '(org-babel-load-languages '((emacs-lisp . t) (shell . t)))
  '(package-selected-packages
-   '(lsp-ivy request-deferred yasnippet-snippets doom-modeline typescript-mode groovy-mode racket-mode docker-compose-mode multiline multi-term flymake company-go evil-goggles go-mode web-mode cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile diminish lsp-rust rust-mode company lsp-ui lsp-mode flycheck doom-themes evil all-the-icons which-key counsel ivy general use-package))
+   '(magit lsp-ivy request-deferred yasnippet-snippets doom-modeline typescript-mode groovy-mode racket-mode docker-compose-mode multiline multi-term flymake company-go evil-goggles go-mode web-mode cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile diminish lsp-rust rust-mode company lsp-ui lsp-mode flycheck doom-themes evil all-the-icons which-key counsel ivy general use-package))
  '(projectile-mode t nil (projectile))
  '(ps-always-build-face-reference t)
  '(ps-default-fg 'frame-parameter)
