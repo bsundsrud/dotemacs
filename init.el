@@ -225,7 +225,7 @@
 ;; Diagnostics for lots of langs
 (use-package flycheck
   :diminish
-  :init (global-flycheck-mode 0))
+  :init (global-flycheck-mode 1))
 
 ;; rust integration for flycheck
 ;; (use-package flycheck-rust
@@ -256,7 +256,12 @@
   :hook (after-init . global-company-mode)
   :config
   (setq company-require-match 'never
-        company-tooltip-align-annotations t))
+        company-tooltip-align-annotations t
+        company-minimum-prefix-length 1
+        company-idle-delay 0.25
+        company-show-numbers t
+        company-selection-wrap-around t
+        company-global-modes '(not help-mode helpful-mode)))
 
 ;; icons for company
 (use-package company-box
@@ -605,7 +610,7 @@ are defining or executing a macro."
  '(lsp-rust-analyzer-cargo-watch-enable t)
  '(lsp-rust-analyzer-server-display-inlay-hints nil)
  '(lsp-rust-clippy-preference "on")
- '(lsp-rust-server 'rls)
+ '(lsp-rust-server 'rust-analyzer)
  '(lsp-ui-doc-enable nil)
  '(lsp-ui-doc-max-height 20)
  '(lsp-ui-doc-position 'at-point)
