@@ -409,6 +409,12 @@
     :ensure nil
     :after request-deferred))
 
+(use-package markdownfmt
+  :ensure t
+  :bind (:map markdown-mode-map
+              ("C-c C-f" . markdownfmt-format-buffer)))
+
+
 ;; VCL
 (use-package vcl-mode
   :ensure nil ; use local version in user-emacs-directory/packages
@@ -452,6 +458,11 @@
   (add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
   (add-hook 'before-save-hook #'gofmt-before-save))
 
+;; Gnome-Shell
+(use-package gnome-shell-mode
+  :load-path ("packages/gnome-shell-mode/local/gnome-shell-mode" "packages/gnome-shell/mode/local/company-gnome-shell")
+  :ensure nil)
+
 ;; ================================================
 ;; Functions
 ;; ================================================
@@ -473,6 +484,13 @@
     (if (or (not b) (eq 'term-mode major-mode))
         (multi-term)
       (switch-to-buffer b))))
+
+(defun benn/eol-and-newline ()
+  "Move to the end of the line and insert a newline."
+  (interactive)
+  (let ((oldpos (point)))
+    (end-of-line)
+    (newline-and-indent)))
 
 (defun benn/escape ()
   "Quit in current context.
@@ -553,6 +571,11 @@ are defining or executing a macro."
  "g/"  '(lsp-ui-peek-find-implementation : which-key "find implementations")
  "`" '(treemacs-select-window :which-key "Show treemacs"))
 
+;; insert/emacs-mode shortcuts
+(general-define-key
+ :states '(insert emacs)
+ "C-<return>" 'benn/eol-and-newline)
+
 ;; setup evil leader shortcuts
 (general-define-key
  :states '(normal visual insert emacs)
@@ -620,7 +643,7 @@ are defining or executing a macro."
  '(lsp-ui-sideline-show-hover t)
  '(org-babel-load-languages '((emacs-lisp . t) (shell . t)))
  '(package-selected-packages
-   '(magit lsp-ivy request-deferred yasnippet-snippets doom-modeline typescript-mode groovy-mode racket-mode docker-compose-mode multiline multi-term flymake company-go evil-goggles go-mode web-mode cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile diminish lsp-rust rust-mode company lsp-ui lsp-mode flycheck doom-themes evil all-the-icons which-key counsel ivy general use-package))
+   '(markdownfmt magit lsp-ivy request-deferred yasnippet-snippets doom-modeline typescript-mode groovy-mode racket-mode docker-compose-mode multiline multi-term flymake company-go evil-goggles go-mode web-mode cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile diminish lsp-rust rust-mode company lsp-ui lsp-mode flycheck doom-themes evil all-the-icons which-key counsel ivy general use-package))
  '(projectile-mode t nil (projectile))
  '(ps-always-build-face-reference t)
  '(ps-default-fg 'frame-parameter)
