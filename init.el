@@ -458,11 +458,6 @@
   (add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
   (add-hook 'before-save-hook #'gofmt-before-save))
 
-;; Gnome-Shell
-(use-package gnome-shell-mode
-  :load-path ("packages/gnome-shell-mode/local/gnome-shell-mode" "packages/gnome-shell/mode/local/company-gnome-shell")
-  :ensure nil)
-
 ;; ================================================
 ;; Functions
 ;; ================================================
