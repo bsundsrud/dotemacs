@@ -51,7 +51,8 @@
 (straight-use-package 'use-package)
 (eval-when-compile
   (require 'use-package)
-  (setq use-package-always-ensure nil))
+  (setq use-package-always-ensure nil
+        use-package-always-defer t))
 
 
 
@@ -132,6 +133,7 @@
 ;; GC magic hack
 (use-package gcmh
   :straight t
+  :demand t
   :commands gcmh-mode
   :init (gcmh-mode 1))
 
@@ -139,19 +141,23 @@
 (use-package vlf
   :straight t)
 (use-package vlf-setup
+  :demand t
   :config (setq vlf-application 'dont-ask))
 
 ;; Jump to char
 (use-package avy
-  :straight t)
+  :straight t
+  :demand t)
 
 ;; Easier keyboard definitions
 (use-package general
-  :straight t)
+  :straight t
+  :demand t)
 
 ;; Completion frontend
 (use-package ivy
   :straight t
+  :demand t
   :diminish
   :commands ivy-mode
   :bind (("C-x b" . ivy-switch-buffer))
@@ -160,6 +166,7 @@
 ;; ivy plugin for minibuffer
 (use-package counsel
   :straight t
+  :demand t
   :diminish
   :commands (counsel-M-x
                counsel-find-file
@@ -180,16 +187,19 @@
 
 ;; ivy plugin for searching
 (use-package swiper
-  :straight t)
+  :straight t
+  :demand t)
 
 
 ;; remove minor-modes from modeline
 (use-package diminish
-  :straight t)
+  :straight t
+  :demand t)
 
 ;; minibuffer display for hotkeys
 (use-package which-key
   :straight t
+  :demand t
   :diminish
   :config (which-key-mode 1))
 
@@ -201,6 +211,7 @@
 ;; project management
 (use-package projectile
   :straight t
+  :demand t
   :diminish
   :commands (projectile-mode)
   :init
@@ -212,6 +223,7 @@
 ;; projectile integration for counsel
 (use-package counsel-projectile
   :straight t
+  :demand t
   :diminish
   :commands (counsel-projectile-mode)
   :init
@@ -222,6 +234,7 @@
 ;; editorconfig integration for picking up whitespace/indentation settings
 (use-package editorconfig
   :straight t
+  :demand t
   :diminish
   :config
   (progn
@@ -257,21 +270,26 @@
 ;; Visual regexp
 (use-package visual-regexp
   :straight t
+  :demand t
   :bind (("M-s r" . vr/query-replace)))
 
 (use-package visual-regexp-steroids
+  :demand t
   :straight t)
 
 (use-package pcre2el
+  :demand t
   :straight t)
 
 ;; Diagnostics for lots of langs
 (use-package flycheck
   :straight t
+  :demand t
   :diminish
   :init (global-flycheck-mode 1))
 (use-package flycheck-inline
   :straight t
+  :demand t
   :hook (flycheck-mode . flycheck-inline-mode))
 (use-package flycheck-rust
   :straight t)
@@ -285,14 +303,17 @@
 (use-package yasnippet
   :diminish yas-minor-mode
   :straight t
+  :demand t
   :init (yas-global-mode 1))
 (use-package yasnippet-snippets
   :straight t
+  :demand t
   :config (yas-reload-all))
 
 ;; code completion
 (use-package company
   :straight t
+  :demand t
   :diminish
   :commands global-company-mode
   :bind (:map global-map
@@ -317,6 +338,7 @@
 ;; icons for company
 (use-package company-box
   :straight t
+  :demand t
   :diminish
   :hook (company-mode . company-box-mode))
 
@@ -388,7 +410,8 @@
 ;; ================================================
 ;; pretty icons
 (use-package all-the-icons
-  :straight t)
+  :straight t
+  :demand t)
 
 ;; tree-view of project dirs
 ;; (use-package treemacs
@@ -410,6 +433,7 @@
 ;; configure display-line-numbers
 (use-package display-line-numbers
   :straight t
+  :demand t
   :config
   (global-display-line-numbers-mode 1)
   (setq display-line-numbers-grow-only t
@@ -418,11 +442,13 @@
 
 ;; auto-focus help windows
 (use-package help
+  :demand t
   :config (setq help-window-select t))
 
 ;; doom modeline
 (use-package doom-modeline
   :straight t
+  :demand t
   :hook (after-init . doom-modeline-mode))
 
 ;; ================================================
@@ -431,6 +457,7 @@
 
 (use-package doom-themes
   :straight t
+  :demand t
   :config
   (progn
     (setq doom-one-brighter-comments t)
