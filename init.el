@@ -78,6 +78,8 @@
 (fset 'yes-or-no-p 'y-or-n-p)           ; Answer y or n instead of having to type yes or no
 (put 'erase-buffer 'disabled nil)       ; enable the erase-buffer command
 (global-so-long-mode 1)                 ; enable so-long mode for better long line handling
+(setq split-height-threshold nil)
+(setq split-width-threshold 80)
 ;; Minimal UI
 (when window-system
   (scroll-bar-mode -1)
@@ -198,34 +200,50 @@
     (editorconfig-mode 1)))
 
 ;; Vi modes for emacs
-(use-package evil
-  :diminish 'undo-tree-mode
-  :config
-  (evil-mode 1)
-  (delete 'term-mode evil-insert-state-modes)
-  (add-to-list 'evil-emacs-state-modes 'term-mode))
+;; (use-package evil
+;;   :diminish 'undo-tree-mode
+;;   :config
+;;   (evil-mode 1)
+;;   (delete 'term-mode evil-insert-state-modes)
+;;   (add-to-list 'evil-emacs-state-modes 'term-mode))
 
 ;; undo mode
-(use-package undo-tree
-  :commands global-undo-tree-mode
-  :init (global-undo-tree-mode 1))
+;; (use-package undo-tree
+;;   :commands global-undo-tree-mode
+;;   :init (global-undo-tree-mode 1))
 
 ;; flash line when performing evil-mode operations
-(use-package evil-goggles
-  :diminish
-  :config
-  (evil-goggles-mode)
+;; (use-package evil-goggles
+;;   :diminish
+;;   :config
+;;   (evil-goggles-mode)
 
-  ;; optionally use diff-mode's faces; as a result, deleted text
-  ;; will be highlighed with `diff-removed` face which is typically
-  ;; some red color (as defined by the color theme)
-  ;; other faces such as `diff-added` will be used for other actions
-  (evil-goggles-use-diff-faces))
+;;   ;; optionally use diff-mode's faces; as a result, deleted text
+;;   ;; will be highlighed with `diff-removed` face which is typically
+;;   ;; some red color (as defined by the color theme)
+;;   ;; other faces such as `diff-added` will be used for other actions
+;;   (evil-goggles-use-diff-faces))
+
+;; Visual regexp
+(use-package visual-regexp
+  :ensure t
+  :bind (("M-s r" . vr/query-replace)))
+
+(use-package visual-regexp-steroids
+  :ensure t)
+
+(use-package pcre2el
+  :ensure t)
 
 ;; Diagnostics for lots of langs
 (use-package flycheck
   :diminish
   :init (global-flycheck-mode 1))
+(use-package flycheck-inline
+  :ensure t
+  :hook (flycheck-mode . flycheck-inline-mode))
+(use-package flycheck-rust
+  :ensure t)
 
 ;; rust integration for flycheck
 ;; (use-package flycheck-rust
@@ -235,10 +253,11 @@
 ;; text snippet manager
 (use-package yasnippet
   :diminish yas-minor-mode
-  :config
-  (use-package yasnippet-snippets)
-  (yas-reload-all)
+  :ensure t
   :init (yas-global-mode 1))
+(use-package yasnippet-snippets
+  :ensure t
+  :config (yas-reload-all))
 
 ;; code completion
 (use-package company
@@ -288,34 +307,46 @@
 
 ;; Magit
 (use-package magit
-    :ensure t)
+  :ensure t)
 
 ;; Language Server Protocol
-(use-package lsp-mode
-  :hook (
-         (prog-mode . lsp)
-         (lsp-mode . lsp-enable-which-key-integration))
-  :commands lsp
-  :init (setq lsp-keymap-prefix "C-c l"))
-;; ui elements for LSP
-(use-package lsp-ui
-  :commands lsp-ui-mode
-  :bind (:map lsp-ui-mode-map
-              ([remap xref-find-definitions] . 'lsp-ui-peek-find-definitions)
-              ([remap xref-find-references] . 'lsp-ui-peek-find-references)))
+(use-package eglot
+  :ensure t
+  :config
+  (add-to-list 'eglot-server-programs '(rust-mode . ("rust-analyzer"))))
+(use-package eldoc
+  :ensure t
+  :config
+  (setq eldoc-echo-area-use-multiline-p 3
+        eldoc-prefer-doc-buffer t
+        eldoc-echo-area-display-truncation-message nil))
+
+
+;; (use-package lsp-mode
+;;   :hook (
+;;          (prog-mode . lsp)
+;;          (lsp-mode . lsp-enable-which-key-integration))
+;;   :commands lsp
+;;   :init (setq lsp-keymap-prefix "C-c l"))
+;; ;; ui elements for LSP
+;; (use-package lsp-ui
+;;   :commands lsp-ui-mode
+;;   :bind (:map lsp-ui-mode-map
+;;               ([remap xref-find-definitions] . 'lsp-ui-peek-find-definitions)
+;;               ([remap xref-find-references] . 'lsp-ui-peek-find-references)))
 
 ;; ivy integration for LSP
-(use-package lsp-ivy
-  :commands lsp-ivy-workspace-symbol)
+;; (use-package lsp-ivy
+;;   :commands lsp-ivy-workspace-symbol)
 
 ;; completions via LSP
-(use-package company-lsp
-  :commands company-lsp)
+;; (use-package company-lsp
+;;   :commands company-lsp)
 
 ;; treemacs integration with LSP
-(use-package lsp-treemacs
-  :commands lsp-treemacs-errors-list
-  :config (lsp-treemacs-sync-mode 1))
+;; (use-package lsp-treemacs
+;;   :commands lsp-treemacs-errors-list
+;;   :config (lsp-treemacs-sync-mode 1))
 
 ;; ================================================
 ;; UI Packages
@@ -324,21 +355,21 @@
 (use-package all-the-icons)
 
 ;; tree-view of project dirs
-(use-package treemacs
-  :defer t)
+;; (use-package treemacs
+;;   :defer t)
 
 ;; evil-mode integration for treemacs
-(use-package treemacs-evil
-  :after treemacs evil)
+;; (use-package treemacs-evil
+;;   :after treemacs evil)
 
 ;; projectile integration for treemacs
-(use-package treemacs-projectile
-  :after treemacs projectile)
+;; (use-package treemacs-projectile
+;;   :after treemacs projectile)
 
 ;; treemacs icons in dired mode
-(use-package treemacs-icons-dired
-  :after treemacs dired
-  :config (treemacs-icons-dired-mode))
+;; (use-package treemacs-icons-dired
+;;   :after treemacs dired
+;;   :config (treemacs-icons-dired-mode))
 
 ;; configure display-line-numbers
 (use-package display-line-numbers
@@ -375,8 +406,9 @@
 ;; Rust
 (use-package rust-mode
   :mode "\\.rs\\'"
-  :hook ((flycheck-mode . flycheck-rust-setup))
-  :config (setq rust-format-on-save t))
+  :config (setq rust-format-on-save t)
+  :hook (rust-mode . eglot-ensure)
+  :init (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
 (use-package cargo
   :hook ((rust-mode toml-mode) . cargo-minor-mode))
@@ -535,49 +567,59 @@ are defining or executing a macro."
  "C-x C-b" 'ibuffer
  "M-s-u" 'benn/revert-buffer-no-confirm
  "<f12>" 'multi-term-dedicated-toggle
- "C-`" 'lsp-ui-imenu
+ ;; "C-`" 'lsp-ui-imenu
  "C-x C-S-c" 'save-buffers-kill-terminal)
 
 ;; Code actions via lsp
-(general-define-key
- "C-c r"   'lsp-rename
- "C-c e"   '(lsp-treemacs-errors-list :which-key "Show error list")
- "C-c f"   'lsp-format-region
- "C-c C-f" 'lsp-format-buffer
- "C-c TAB" 'lsp-execute-code-action
- "C-c i"   '(lsp-ui-peek-find-implementation :which-key "find implementations")
- "C-c d"   '(xref-find-definitions :which-key "find definitions")
- "C-c D"   '(xref-find-references :which-key "find-references")
- "C-c h"   '(benn/toggle-lsp-ui-doc :which-key "Show docs"))
+;; (general-define-key
+;;  "C-c r"   'lsp-rename
+;;  "C-c e"   '(lsp-treemacs-errors-list :which-key "Show error list")
+;;  "C-c f"   'lsp-format-region
+;;  "C-c C-f" 'lsp-format-buffer
+;;  "C-c TAB" 'lsp-execute-code-action
+;;  "C-c i"   '(lsp-ui-peek-find-implementation :which-key "find implementations")
+;;  "C-c d"   '(xref-find-definitions :which-key "find definitions")
+;;  "C-c D"   '(xref-find-references :which-key "find-references")
+;;  "C-c h"   '(benn/toggle-lsp-ui-doc :which-key "Show docs"))
 
 ;; LSP keymap
+;; (general-define-key
+;;  :states '(normal visual insert emacs)
+;;  :keymaps 'lsp-mode-map)
+
+;; Code actions via eglot
 (general-define-key
- :states '(normal visual insert emacs)
- :keymaps 'lsp-mode-map)
+ "C-c r" '(eglot-rename :which-key "Rename Symbol")
+ "C-c f" '(eglot-format :which-key "Format region")
+ "C-c C-f" '(eglot-format-buffer :which-key "Format buffer")
+ "C-c TAB" '(eglot-code-actions :which-key "Code Actions")
+ "C-c o" '(eglot-code-action-organize-imports :which-key "Organize imports")
+ "C-c i" '(eglot-find-implementation :which-key "Find implementations")
+ "C-c d" '(xref-find-definitions :which-key "Find declaration")
+ "C-c D" '(xref-find-references :which-key "Find references")
+ "C-c h" '(eldoc :which-key "Show docs"))
 
 ;; setup normal mode evil shortcuts
-(general-define-key
- :states '(normal treemacs)
- "gT"  '(switch-to-prev-buffer :which-key "previous buffer")
- "gt"  '(switch-to-next-buffer :which-key "next buffer")
- "gb"  '(counsel-ibuffer :which-key "buffers list")
- "g?"  '(xref-find-references :which-key "find-references")
- "g."  '(xref-find-definitions :which-key "find definition")
- "g/"  '(lsp-ui-peek-find-implementation : which-key "find implementations")
- "`" '(treemacs-select-window :which-key "Show treemacs"))
+;; (general-define-key
+;;  :states '(normal treemacs)
+;;  "gT"  '(switch-to-prev-buffer :which-key "previous buffer")
+;;  "gt"  '(switch-to-next-buffer :which-key "next buffer")
+;;  "gb"  '(counsel-ibuffer :which-key "buffers list")
+;;  "g?"  '(xref-find-references :which-key "find-references")
+;;  "g."  '(xref-find-definitions :which-key "find definition")
+;;  "g/"  '(lsp-ui-peek-find-implementation : which-key "find implementations")
+;;  "`" '(treemacs-select-window :which-key "Show treemacs"))
 
 ;; insert/emacs-mode shortcuts
 (general-define-key
- :states '(insert emacs)
  "C-<return>" 'benn/eol-and-newline)
 
+(general-unbind "M-SPC")
 ;; setup evil leader shortcuts
 (general-define-key
- :states '(normal visual insert emacs)
- :prefix "SPC"
- :non-normal-prefix "M-SPC"
+ :prefix "M-SPC"
  "/"   '(counsel-rg :which-key "ripgrep")
- "TAB" '(switch-to-prev-buffer :which-key "previous buffer")
+ "TAB" '(mode-line-other-buffer :which-key "previous buffer")
  "SPC" '(counsel-M-x :which-key "M-x")
  "RET" 'benn/get-term
  "g"   '(:ignore t :which-key "buffers")
@@ -638,11 +680,12 @@ are defining or executing a macro."
  '(lsp-ui-sideline-show-hover t)
  '(org-babel-load-languages '((emacs-lisp . t) (shell . t)))
  '(package-selected-packages
-   '(markdownfmt magit lsp-ivy request-deferred yasnippet-snippets doom-modeline typescript-mode groovy-mode racket-mode docker-compose-mode multiline multi-term flymake company-go evil-goggles go-mode web-mode cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile diminish lsp-rust rust-mode company lsp-ui lsp-mode flycheck doom-themes evil all-the-icons which-key counsel ivy general use-package))
+   '(pcre2el visual-regexp-steroids visual-regexp flycheck-rust flycheck-inline markdownfmt magit lsp-ivy request-deferred yasnippet-snippets doom-modeline typescript-mode groovy-mode racket-mode docker-compose-mode multiline multi-term flymake company-go evil-goggles go-mode web-mode cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile diminish lsp-rust rust-mode company lsp-ui lsp-mode flycheck doom-themes evil all-the-icons which-key counsel ivy general use-package))
  '(projectile-mode t nil (projectile))
  '(ps-always-build-face-reference t)
  '(ps-default-fg 'frame-parameter)
- '(ps-font-size 12.0))
+ '(ps-font-size 12.0)
+ '(vr/engine 'pcre2el))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
