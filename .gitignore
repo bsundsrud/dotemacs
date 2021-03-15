@@ -10,4 +10,5 @@ session.*
 history
 cache/
 transient/
-straight/
+/straight/*
+!/straight/versions
