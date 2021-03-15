@@ -8,3 +8,6 @@ session.*
 .lsp-session-v1
 .org-id-locations
 history
+cache/
+transient/
+straight/

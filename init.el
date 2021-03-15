@@ -23,20 +23,37 @@
 (let ((default-directory  (concat user-emacs-directory (convert-standard-filename "packages/"))))
   (normal-top-level-add-subdirs-to-load-path))
 
-(defvar package-archives)
-(setq package-archives '(("org"       . "http://orgmode.org/elpa/")
-                         ("gnu"       . "http://elpa.gnu.org/packages/")
-                         ("melpa"     . "https://melpa.org/packages/")))
-(package-initialize)
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+
+;; (defvar package-archives)
+;; (setq package-archives '(("org"       . "http://orgmode.org/elpa/")
+;;                          ("gnu"       . "http://elpa.gnu.org/packages/")
+;;                          ("melpa"     . "https://melpa.org/packages/")))
+;; (package-initialize)
 
 ;; Bootstrap `use-package'
-(unless (package-installed-p 'use-package) ; unless it is already installed
-  (package-refresh-contents) ; updage packages archive
-  (package-install 'use-package)) ; and install the most recent version of use-package
+;; (unless (package-installed-p 'use-package) ; unless it is already installed
+;;   (package-refresh-contents) ; updage packages archive
+;;   (package-install 'use-package)) ; and install the most recent version of use-package
 
+(straight-use-package 'use-package)
 (eval-when-compile
   (require 'use-package)
-  (setq use-package-always-ensure t))
+  (setq use-package-always-ensure nil))
+
+
 
 ;; ================================================
 ;; Global prefs
@@ -114,22 +131,27 @@
 
 ;; GC magic hack
 (use-package gcmh
+  :straight t
   :commands gcmh-mode
   :init (gcmh-mode 1))
 
 ;; Very large file handling
+(use-package vlf
+  :straight t)
 (use-package vlf-setup
-  :ensure vlf
   :config (setq vlf-application 'dont-ask))
 
 ;; Jump to char
-(use-package avy)
+(use-package avy
+  :straight t)
 
 ;; Easier keyboard definitions
-(use-package general)
+(use-package general
+  :straight t)
 
 ;; Completion frontend
 (use-package ivy
+  :straight t
   :diminish
   :commands ivy-mode
   :bind (("C-x b" . ivy-switch-buffer))
@@ -137,6 +159,7 @@
 
 ;; ivy plugin for minibuffer
 (use-package counsel
+  :straight t
   :diminish
   :commands (counsel-M-x
                counsel-find-file
@@ -156,13 +179,17 @@
   :config (counsel-mode 1))
 
 ;; ivy plugin for searching
-(use-package swiper)
+(use-package swiper
+  :straight t)
+
 
 ;; remove minor-modes from modeline
-(use-package diminish)
+(use-package diminish
+  :straight t)
 
 ;; minibuffer display for hotkeys
 (use-package which-key
+  :straight t
   :diminish
   :config (which-key-mode 1))
 
@@ -173,6 +200,7 @@
 
 ;; project management
 (use-package projectile
+  :straight t
   :diminish
   :commands (projectile-mode)
   :init
@@ -183,6 +211,7 @@
 
 ;; projectile integration for counsel
 (use-package counsel-projectile
+  :straight t
   :diminish
   :commands (counsel-projectile-mode)
   :init
@@ -192,6 +221,7 @@
 
 ;; editorconfig integration for picking up whitespace/indentation settings
 (use-package editorconfig
+  :straight t
   :diminish
   :config
   (progn
@@ -226,24 +256,25 @@
 
 ;; Visual regexp
 (use-package visual-regexp
-  :ensure t
+  :straight t
   :bind (("M-s r" . vr/query-replace)))
 
 (use-package visual-regexp-steroids
-  :ensure t)
+  :straight t)
 
 (use-package pcre2el
-  :ensure t)
+  :straight t)
 
 ;; Diagnostics for lots of langs
 (use-package flycheck
+  :straight t
   :diminish
   :init (global-flycheck-mode 1))
 (use-package flycheck-inline
-  :ensure t
+  :straight t
   :hook (flycheck-mode . flycheck-inline-mode))
 (use-package flycheck-rust
-  :ensure t)
+  :straight t)
 
 ;; rust integration for flycheck
 ;; (use-package flycheck-rust
@@ -253,14 +284,15 @@
 ;; text snippet manager
 (use-package yasnippet
   :diminish yas-minor-mode
-  :ensure t
+  :straight t
   :init (yas-global-mode 1))
 (use-package yasnippet-snippets
-  :ensure t
+  :straight t
   :config (yas-reload-all))
 
 ;; code completion
 (use-package company
+  :straight t
   :diminish
   :commands global-company-mode
   :bind (:map global-map
@@ -284,6 +316,7 @@
 
 ;; icons for company
 (use-package company-box
+  :straight t
   :diminish
   :hook (company-mode . company-box-mode))
 
@@ -293,6 +326,7 @@
 
 ;; terminals in emacs
 (use-package multi-term
+  :straight t
   :config
   (progn
     (setq multi-term-program "/bin/bash")
@@ -302,20 +336,21 @@
 
 ;; colorful terminals in emacs
 (use-package eterm-256color
+  :straight t
   :config
   (add-hook 'term-mode-hook 'eterm-256color-mode))
 
 ;; Magit
 (use-package magit
-  :ensure t)
+  :straight t)
 
 ;; Language Server Protocol
 (use-package eglot
-  :ensure t
+  :straight t
   :config
   (add-to-list 'eglot-server-programs '(rust-mode . ("rust-analyzer"))))
 (use-package eldoc
-  :ensure t
+  :straight t
   :config
   (setq eldoc-echo-area-use-multiline-p 3
         eldoc-prefer-doc-buffer t
@@ -352,7 +387,8 @@
 ;; UI Packages
 ;; ================================================
 ;; pretty icons
-(use-package all-the-icons)
+(use-package all-the-icons
+  :straight t)
 
 ;; tree-view of project dirs
 ;; (use-package treemacs
@@ -373,7 +409,7 @@
 
 ;; configure display-line-numbers
 (use-package display-line-numbers
-  :ensure nil
+  :straight t
   :config
   (global-display-line-numbers-mode 1)
   (setq display-line-numbers-grow-only t
@@ -382,11 +418,11 @@
 
 ;; auto-focus help windows
 (use-package help
-  :ensure nil
   :config (setq help-window-select t))
 
 ;; doom modeline
 (use-package doom-modeline
+  :straight t
   :hook (after-init . doom-modeline-mode))
 
 ;; ================================================
@@ -394,6 +430,7 @@
 ;; ================================================
 
 (use-package doom-themes
+  :straight t
   :config
   (progn
     (setq doom-one-brighter-comments t)
@@ -405,27 +442,33 @@
 
 ;; Rust
 (use-package rust-mode
+  :straight t
   :mode "\\.rs\\'"
   :config (setq rust-format-on-save t)
   :hook (rust-mode . eglot-ensure)
   :init (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
 (use-package cargo
+  :straight t
   :hook ((rust-mode toml-mode) . cargo-minor-mode))
 
 ;;; TOML
 (use-package toml-mode
+  :straight t
   :mode "\\.toml\\'")
 
 ; Racket
 (use-package racket-mode
+  :straight t
   :mode ("\\.rkt\\'" . racket-mode))
 
 ;; Org-mode
 (use-package org
+  :straight t
   :mode ("\\.org\\'" . org-mode))
 
 (use-package org-bullets
+  :straight t
   :diminish
   :commands (org-bullets-mode)
   :init (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
@@ -436,51 +479,57 @@
   :mode "\\.md\\'"
   :init
   (use-package request-deferred
-    :ensure t)
+    :straight t)
   (use-package github-markdown-preview
-    :ensure nil
-    :after request-deferred))
+    :after request-deferred)
+  :straight t)
 
 (use-package markdownfmt
-  :ensure t
+  :straight t
   :bind (:map markdown-mode-map
               ("C-c C-f" . markdownfmt-format-buffer)))
 
 
 ;; VCL
 (use-package vcl-mode
-  :ensure nil ; use local version in user-emacs-directory/packages
   :mode "\\.vcl\\'")
 
 ;; JSON
 (use-package json-mode
-  :mode "\\.json\\'")
+  :mode "\\.json\\'"
+  :straight t)
 
 ;; YAML
 (use-package yaml-mode
   :mode ("\\.yaml\\'"
-	 "\\.yml\\'"))
+	 "\\.yml\\'")
+  :straight t)
 
 ;; Dockerfile
 (use-package dockerfile-mode
-  :mode "Dockerfile\\'")
+  :mode "Dockerfile\\'"
+  :straight t)
 (use-package docker-compose-mode
   :mode ("docker-compose.yml\\'"
-         "docker-compose.yaml\\'"))
+         "docker-compose.yaml\\'")
+  :straight t)
 
 ;; Groovy/Jenkinsfile
 (use-package groovy-mode
   :mode ("\\.groovy\\'"
-         "Jenkinsfile\\'"))
+         "Jenkinsfile\\'")
+  :straight t)
 
 ;; Web
 (use-package web-mode
-  :mode "\\.html\\'")
+  :mode "\\.html\\'"
+  :straight t)
 
 ;; JavaScript
 ;; lsp support requires running `npm install --global javascript-typescript-langserver` first
 (use-package js2-mode
-  :mode "\\.js\\'")
+  :mode "\\.js\\'"
+  :straight t)
 
 ;; Golang
 ;; lsp support requires running `go get golang.org/x/tools/gopls@latest` first
@@ -488,7 +537,8 @@
   :mode "\\.go\\'"
   :init
   (add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
-  (add-hook 'before-save-hook #'gofmt-before-save))
+  (add-hook 'before-save-hook #'gofmt-before-save)
+  :straight t)
 
 ;; ================================================
 ;; Functions
@@ -679,25 +729,11 @@ are defining or executing a macro."
  '(lsp-ui-sideline-ignore-duplicate t)
  '(lsp-ui-sideline-show-hover t)
  '(org-babel-load-languages '((emacs-lisp . t) (shell . t)))
- '(package-selected-packages
-   '(pcre2el visual-regexp-steroids visual-regexp flycheck-rust flycheck-inline markdownfmt magit lsp-ivy request-deferred yasnippet-snippets doom-modeline typescript-mode groovy-mode racket-mode docker-compose-mode multiline multi-term flymake company-go evil-goggles go-mode web-mode cargo dockerfile-mode toml-mode yaml-mode org-bullets counsel-projectile projectile diminish lsp-rust rust-mode company lsp-ui lsp-mode flycheck doom-themes evil all-the-icons which-key counsel ivy general use-package))
  '(projectile-mode t nil (projectile))
  '(ps-always-build-face-reference t)
  '(ps-default-fg 'frame-parameter)
  '(ps-font-size 12.0)
  '(vr/engine 'pcre2el))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(evil-goggles-change-face ((t (:inherit diff-removed))))
- '(evil-goggles-delete-face ((t (:inherit diff-removed))))
- '(evil-goggles-paste-face ((t (:inherit diff-added))))
- '(evil-goggles-undo-redo-add-face ((t (:inherit diff-added))))
- '(evil-goggles-undo-redo-change-face ((t (:inherit diff-changed))))
- '(evil-goggles-undo-redo-remove-face ((t (:inherit diff-removed))))
- '(evil-goggles-yank-face ((t (:inherit diff-changed)))))
 
 (provide 'init)
 ;;; init.el ends here
