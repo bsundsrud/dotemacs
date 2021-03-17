@@ -378,6 +378,20 @@
         eldoc-prefer-doc-buffer t
         eldoc-echo-area-display-truncation-message nil))
 
+(use-package expand-region
+  :straight t
+  :demand t
+  :bind
+  ("C-{" . 'er/expand-region)
+  ("C-}" . 'er/contract-region))
+
+(use-package multiple-cursors
+  :straight t
+  :demand t
+  :bind
+  ("C-c C->" . 'mc/mark-all-like-this)
+  ("C->" . 'mc/mark-next-like-this)
+  ("C-<" . 'mc/mark-previous-like-this))
 
 ;; (use-package lsp-mode
 ;;   :hook (
@@ -412,6 +426,20 @@
 (use-package all-the-icons
   :straight t
   :demand t)
+
+(use-package centaur-tabs
+  :straight t
+  :demand t
+  :config
+  (centaur-tabs-mode t)
+  (setq centaur-tabs-set-icons t
+        centaur-tabs-style "bar"
+        centaur-tabs-set-bar 'left
+        centaur-tabs-set-modified-marker t
+        centaur-tabs-gray-out-icons 'buffer)
+  :bind
+  ("C-<next>" . 'centaur-tabs-forward)
+  ("C-<prior>" . 'centaur-tabs-backward))
 
 ;; tree-view of project dirs
 ;; (use-package treemacs
@@ -573,7 +601,9 @@
 
 (defun benn/revert-buffer-no-confirm ()
   "Revert buffer without confirmation."
-  (interactive) (revert-buffer t t))
+  (interactive)
+  (revert-buffer t t t)
+  (centaur-tabs-after-modifying-buffer))
 
 (defun benn/last-term-buffer (l)
   "Return most recently used term buffer from buffer list L."
