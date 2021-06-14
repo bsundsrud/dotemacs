@@ -432,6 +432,7 @@
   :demand t
   :config
   (centaur-tabs-mode t)
+  (centaur-tabs-group-by-projectile-project)
   (setq centaur-tabs-set-icons t
         centaur-tabs-style "bar"
         centaur-tabs-set-bar 'left
@@ -439,7 +440,9 @@
         centaur-tabs-gray-out-icons 'buffer)
   :bind
   ("C-<next>" . 'centaur-tabs-forward)
-  ("C-<prior>" . 'centaur-tabs-backward))
+  ("C-<prior>" . 'centaur-tabs-backward)
+  ("C-c b" . 'centaur-tabs-counsel-switch-group)
+  ("C-c k" . 'centaur-tabs-kill-all-buffers-in-current-group))
 
 ;; tree-view of project dirs
 ;; (use-package treemacs
