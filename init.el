@@ -610,12 +610,18 @@
 ;; ================================================
 ;; Functions
 ;; ================================================
-(defun benn/eglot-restart ()
+(defun benn/eglot-hard-restart ()
   "Purge and restart eglot."
   (interactive)
   (eglot-shutdown-all)
   (eglot--managed-mode-off)
   (call-interactively 'eglot))
+
+(defun benn/eglot-restart ()
+  "Restart eglot in current buffer."
+  (interactive)
+  (eglot--managed-mode-off)
+  (call-interactively 'eglot--managed-mode))
 
 (defun benn/revert-buffer-no-confirm ()
   "Revert buffer without confirmation."
@@ -723,7 +729,8 @@ are defining or executing a macro."
  "C-c d" '(xref-find-definitions :which-key "Find declaration")
  "C-c D" '(xref-find-references :which-key "Find references")
  "C-c h" '(eldoc :which-key "Show docs")
- "C-c s" '(benn/eglot-restart :which-key "Hard-restart eglot"))
+ "C-c s" '(benn/eglot-restart :which-key "Restart eglot")
+ "C-c S" '(benn/eglot-hard-restart :which-key "Hard-restart eglot"))
 
 ;; setup normal mode evil shortcuts
 (general-define-key
