@@ -403,22 +403,25 @@
   ("C-<" . 'mc/mark-previous-like-this))
 
 ;; (use-package lsp-mode
+;;   :straight t
 ;;   :hook (
 ;;          (prog-mode . lsp)
 ;;          (lsp-mode . lsp-enable-which-key-integration))
-;;   :commands lsp
-;;   :init (setq lsp-keymap-prefix "C-c l"))
-;; ;; ui elements for LSP
+;;   :init
+;;   (setq lsp-keymap-prefix "C-c l")
+;;   :config
+;;   (setq lsp-clients-lua-language-server-bin "/home/bsundsrud/devel/tools/lua-language-server/bin/lua-language-server")
+;;   (setq lsp-clients-lua-language-server-install-dir "/home/bsundsrud/devel/tools/lua-language-server/")
+;;   (setq lsp-clients-lua-language-server-main-location "/home/bsundsrud/devel/tools/lua-language-server/main.lua")
+;;   :commands lsp)
 ;; (use-package lsp-ui
+;;   :straight t
 ;;   :commands lsp-ui-mode
-;;   :bind (:map lsp-ui-mode-map
-;;               ([remap xref-find-definitions] . 'lsp-ui-peek-find-definitions)
-;;               ([remap xref-find-references] . 'lsp-ui-peek-find-references)))
-
-;; ivy integration for LSP
+;;   :config
+;;   (setq lsp-ui-doc-show-with-cursor nil))
 ;; (use-package lsp-ivy
+;;   :straight t
 ;;   :commands lsp-ivy-workspace-symbol)
-
 ;; completions via LSP
 ;; (use-package company-lsp
 ;;   :commands company-lsp)
@@ -523,6 +526,11 @@
 (use-package toml-mode
   :straight t
   :mode "\\.toml\\'")
+
+;; Lua
+(use-package lua-mode
+  :straight t
+  :mode "\\.lua\\'")
 
 ; Racket
 (use-package racket-mode
@@ -698,13 +706,12 @@ are defining or executing a macro."
  "C-x C-b" 'ibuffer
  "M-s-u" 'benn/revert-buffer-no-confirm
  "<f12>" 'multi-term-dedicated-toggle
- ;; "C-`" 'lsp-ui-imenu
+ "C-`" 'lsp-ui-imenu
  "C-x C-S-c" 'save-buffers-kill-terminal)
 
 ;; Code actions via lsp
 ;; (general-define-key
 ;;  "C-c r"   'lsp-rename
-;;  "C-c e"   '(lsp-treemacs-errors-list :which-key "Show error list")
 ;;  "C-c f"   'lsp-format-region
 ;;  "C-c C-f" 'lsp-format-buffer
 ;;  "C-c TAB" 'lsp-execute-code-action
@@ -714,9 +721,9 @@ are defining or executing a macro."
 ;;  "C-c h"   '(benn/toggle-lsp-ui-doc :which-key "Show docs"))
 
 ;; LSP keymap
-;; (general-define-key
-;;  :states '(normal visual insert emacs)
-;;  :keymaps 'lsp-mode-map)
+(general-define-key
+ :states '(normal visual insert emacs)
+ :keymaps 'lsp-mode-map)
 
 ;; Code actions via eglot
 (general-define-key
@@ -799,9 +806,9 @@ are defining or executing a macro."
  '(lsp-rust-analyzer-server-display-inlay-hints nil)
  '(lsp-rust-clippy-preference "on")
  '(lsp-rust-server 'rust-analyzer)
- '(lsp-ui-doc-enable nil)
- '(lsp-ui-doc-max-height 20)
- '(lsp-ui-doc-position 'at-point)
+ '(lsp-ui-doc-enable t)
+ '(lsp-ui-doc-max-height 10)
+ '(lsp-ui-doc-position 'top)
  '(lsp-ui-doc-use-childframe t)
  '(lsp-ui-doc-use-webkit nil)
  '(lsp-ui-sideline-ignore-duplicate t)
@@ -811,7 +818,21 @@ are defining or executing a macro."
  '(ps-always-build-face-reference t)
  '(ps-default-fg 'frame-parameter)
  '(ps-font-size 12.0)
- '(vr/engine 'pcre2el))
+ '(vr/engine 'pcre2el)
+ '(warning-suppress-log-types '((lsp-mode) (lsp-mode)))
+ '(warning-suppress-types '((lsp-mode))))
 
 (provide 'init)
 ;;; init.el ends here
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(evil-goggles-change-face ((t (:inherit diff-removed))))
+ '(evil-goggles-delete-face ((t (:inherit diff-removed))))
+ '(evil-goggles-paste-face ((t (:inherit diff-added))))
+ '(evil-goggles-undo-redo-add-face ((t (:inherit diff-added))))
+ '(evil-goggles-undo-redo-change-face ((t (:inherit diff-changed))))
+ '(evil-goggles-undo-redo-remove-face ((t (:inherit diff-removed))))
+ '(evil-goggles-yank-face ((t (:inherit diff-changed)))))
